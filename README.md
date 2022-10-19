@@ -4,7 +4,6 @@ Tatoeba Project의 English-French 문장 쌍 데이터를 사용하여 [Transfor
 Transformer 기반 기계 번역 모델에 대한 설명은 [Transformer를 이용한 기계 번역](https://ljm565.github.io/contents/transformer2.html)을 참고하시기 바랍니다.
 또한 본 모델은 vanilla transformer에서 사용하는 positional encoding 뿐만 아니라, positional embedding을 선택할 수 있습니다.
 그리고 이렇게 임베딩 방법을 달리한 두 모델의 결과를 비교합니다.
-
 <br>그리고 transformer의 성능을 GRU 기계 번역 모델과 비교하기 위해 이전에 [GRU 기반 기계 번역 프로젝트](https://github.com/ljm565/neural-machine-translator-GRU)와 같은 데이터를 사용하였으며, GRU 프로젝트와 토크나이저, 전처리 기법 등 모든 조건을 똑같이 하여 실험하였습니다.
 GRU 기반의 기계 번역 모델 GitHub 프로젝트는 [neural-machine-translator-GRU](https://github.com/ljm565/neural-machine-translator-GRU)를 참고하시면 됩니다.
 그리고 이 프로젝트에 대한 설명은 [Sequence-to-Sequence (Seq2Seq) 모델과 Attention](https://ljm565.github.io/contents/RNN2.html)을 참고하시면 됩니다.
@@ -86,7 +85,6 @@ GRU 기반의 기계 번역 모델 GitHub 프로젝트는 [neural-machine-transl
     그리고 아래 표기된 결과는 test set에서 가장 높은 BLEU-4를 달성한 모델의 점수입니다.
     따라서 그래프에서 보이는 학습 중 best score와 차이가 있을 수 있습니다.
     마지막으로 inference 방식으로 계산된 loss 및 score를 보고싶다면 inference mode로 실행 시 자동 계산 되므로 확인할 수 있습니다.
-
     <br>그리고 transformer와 비교하는 GRU 모델은 [neural-machine-translator-GRU](https://github.com/ljm565/neural-machine-translator-GRU) 프로젝트의 "Model with Attention" 모델입니다.
     이 모델의 학습 중 가장 높은 BLEU-4를 달성한 모델(9 epoch)의 결과를 표기하였습니다.
     * Training Set Loss History<br>
