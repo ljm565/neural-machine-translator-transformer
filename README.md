@@ -6,7 +6,7 @@ Transformer 기반 기계 번역 모델에 대한 설명은 [Transformer를 이�
 그리고 이렇게 임베딩 방법을 달리한 두 모델의 결과를 비교합니다.
 <br><br>그리고 transformer의 성능을 GRU 기계 번역 모델과 비교하기 위해 이전에 [GRU 기반 기계 번역 프로젝트](https://github.com/ljm565/neural-machine-translator-GRU)와 같은 데이터를 사용하였으며, GRU 프로젝트와 토크나이저, 전처리 기법 등 모든 조건을 똑같이 하여 실험하였습니다.
 GRU 기반의 기계 번역 모델 GitHub 프로젝트는 [neural-machine-translator-GRU](https://github.com/ljm565/neural-machine-translator-GRU)를 참고하시면 됩니다.
-그리고 이 프로젝트에 대한 설명은 [Sequence-to-Sequence (Seq2Seq) 모델과 Attention](https://ljm565.github.io/contents/RNN2.html)을 참고하시면 됩니다.
+그리고 GRU 기계 번역 프로젝트에 대한 설명은 [Sequence-to-Sequence (Seq2Seq) 모델과 Attention](https://ljm565.github.io/contents/RNN2.html)을 참고하시면 됩니다.
 <br><br><br>
 
 ## 모델 종류
