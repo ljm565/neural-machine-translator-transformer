@@ -2,7 +2,6 @@ import torch
 import re
 import pickle
 import random
-import matplotlib.pyplot as plt
 import unicodedata
 import random
 from nltk.translate.bleu_score import corpus_bleu
@@ -61,7 +60,6 @@ def print_samples(src, trg, output, tokenizers, show_n=3, idx=None):
         print('-'*50 + '\n')
 
 
-
 def bleu_score(ref, pred, weights):
     return corpus_bleu(ref, pred, weights)
 
@@ -78,38 +76,11 @@ def cal_scores(ref, pred, type, n_gram):
     return nist_score(ref, pred, n_gram)
 
 
-
 def tensor2list(ref, pred, tokenizer):
     ref, pred = torch.cat(ref, dim=0)[:, 1:], torch.cat(pred, dim=0)[:, :-1]
     ref = [[tokenizer.decode(ref[i].tolist()).split()] for i in range(ref.size(0))]
     pred = [tokenizer.decode(torch.argmax(pred[i], dim=1).tolist()).split() for i in range(pred.size(0))]
     return ref, pred
-    
-
-def visualize_attn(score, src, trg, pred, tokenizers, result_num, save_path):
-    src_tokenizer, trg_tokenizer = tokenizers[0], tokenizers[1]
-    ids = random.sample(list(range(score.size(0))), result_num)
-
-    for num, i in enumerate(ids):
-        src_tok = src_tokenizer.tokenize(src_tokenizer.decode(src[i].tolist()))
-        pred_tok = trg_tokenizer.tokenize(trg_tokenizer.decode(pred[i].tolist()))
-        
-        src_st, src_tr = 1, len(src_tok) - 1
-        pred_st, pred_tr = 0, len(pred_tok) - 1
-
-        score_i = score[i, src_st:src_tr, pred_st:pred_tr]
-        src_tok = src_tok[src_st:src_tr]
-        pred_tok = pred_tok[pred_st:pred_tr]
-
-        plt.figure(figsize=(8, 8))
-        plt.title('Neural Machine Translator Attention', fontsize=20)
-        plt.imshow(score_i, cmap='gray')
-        plt.yticks(list(range(len(src_tok))), src_tok)
-        plt.xticks(list(range(len(pred_tok))), pred_tok, rotation=90)
-        plt.colorbar()
-        plt.savefig(save_path + '_attention' + str(num)+'.jpg')
-
-    print_samples(src, trg, pred, tokenizers, result_num, ids)
 
 
 def make_inference_data(query, tokenizer, max_len):
