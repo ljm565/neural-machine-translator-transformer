@@ -46,9 +46,9 @@ def print_samples(src, trg, output, tokenizers, show_n=3, idx=None):
         for i in idx:
             s, t, o = src[i, :].tolist(), trg[i, 1:].tolist(), torch.argmax(output[i, :-1], dim=1).tolist()
             s, t, o = tokenizers[0].decode(s), tokenizers[1].decode(t), tokenizers[1].decode(o)
-            print('src : {}'.format(' '.join(s.split()[1:-1])))
-            print('gt  : {}'.format(' '.join(t.split()[:-1])))
-            print('pred: {}\n'.format(' '.join(o.split()[:-1])))
+            print('src : {}'.format(' '.join(s.split()[1:])))
+            print('gt  : {}'.format(' '.join(t.split())))
+            print('pred: {}\n'.format(' '.join(o.split())))
         print('-'*50 + '\n')
     else:
         print('-'*50)
