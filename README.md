@@ -85,7 +85,7 @@ GRU 기반의 기계 번역 모델 GitHub 프로젝트는 [neural-machine-transl
     그리고 아래 표기된 결과는 test set에서 가장 높은 BLEU-4를 달성한 모델의 점수입니다.
     따라서 그래프에서 보이는 학습 중 best score와 차이가 있을 수 있습니다.
     마지막으로 inference 방식으로 계산된 loss 및 score를 보고싶다면 inference mode로 실행 시 자동 계산 되므로 확인할 수 있습니다.
-    <br>그리고 transformer와 비교하는 GRU 모델은 [neural-machine-translator-GRU](https://github.com/ljm565/neural-machine-translator-GRU) 프로젝트의 "Model with Attention" 모델입니다.
+    <br><br>그리고 transformer와 비교하는 GRU 모델은 [neural-machine-translator-GRU](https://github.com/ljm565/neural-machine-translator-GRU) 프로젝트의 "Model with Attention" 모델입니다.
     이 모델의 학습 중 가장 높은 BLEU-4를 달성한 모델(9 epoch)의 결과를 표기하였습니다.
     * Training Set Loss History<br>
         <img src="images/trainLoss.png" width="80%"><br><br>
