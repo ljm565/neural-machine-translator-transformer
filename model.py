@@ -169,7 +169,7 @@ class Encoder(nn.Module):
         self.hidden_dim = config.hidden_dim
         self.num_head = config.num_head
         self.max_len = config.max_len
-        self.bias = config.bias
+        self.bias = bool(config.bias)
         self.dropout = config.dropout
         self.layernorm_eps = config.layernorm_eps
         self.pos_encoding = config.pos_encoding
@@ -241,7 +241,7 @@ class Decoder(nn.Module):
         self.hidden_dim = config.hidden_dim
         self.num_head = config.num_head
         self.max_len = config.max_len
-        self.bias = config.bias
+        self.bias = bool(config.bias)
         self.dropout = config.dropout
         self.layernorm_eps = config.layernorm_eps
         self.pos_encoding = config.pos_encoding
@@ -274,13 +274,7 @@ class Transformer(nn.Module):
         self.src_tokenizer, self.trg_tokenizer = tokenizers
         self.device = device
         
-        self.enc_num_layers = self.config.enc_num_layers
-        self.dec_num_layers = self.config.dec_num_layers
         self.hidden_dim = self.config.hidden_dim
-        self.num_head =  self.config.num_head
-        self.max_len = self.config.max_len
-        self.bias = bool(self.config.bias)
-        self.dropout = self.config.dropout
 
         self.encoder = Encoder(self.config, self.src_tokenizer, self.device)
         self.decoder = Decoder(self.config, self.trg_tokenizer, self.device)
