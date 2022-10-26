@@ -95,7 +95,7 @@ class MultiHeadAttention(nn.Module):
         self.batch_size = query.size(0)
         q = self.head_split(self.q_proj(query))
         k = self.head_split(self.k_proj(key))
-        v = self.head_split(self.k_proj(value))
+        v = self.head_split(self.v_proj(value))
 
         attn_wts, attn_out = self.scaled_dot_product(q, k, v, mask)
         attn_out = self.attn_proj(self.reshaping(attn_out))
