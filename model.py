@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-import math
 
 
 # word embedding layer
@@ -74,7 +73,7 @@ class MultiHeadAttention(nn.Module):
 
 
     def scaled_dot_product(self, q, k, v, mask):
-        attn_wts = torch.matmul(q, torch.transpose(k, 2, 3))/math.sqrt(self.head_dim)
+        attn_wts = torch.matmul(q, torch.transpose(k, 2, 3))/(self.head_dim**0.5)
         if not mask == None:
             attn_wts = attn_wts.masked_fill(mask==0, float('-inf'))
         attn_wts = F.softmax(attn_wts, dim=-1)
