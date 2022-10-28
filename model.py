@@ -42,7 +42,7 @@ class PositionalEncoding(nn.Module):
 
     def forward(self, x):
         if self.pos_encoding:
-            return self.pe[:, :x.size(1), :]
+            return self.pe
         return self.emb_layer(self.pos.unsqueeze(0).to(self.device))
         
 
