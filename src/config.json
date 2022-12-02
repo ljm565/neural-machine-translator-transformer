@@ -1,11 +1,11 @@
 {   
-    "data_type": "wmt14-ende",
+    "data_type": "iwslt14-ende",
     "ende": 1,
     
 
     "base_path": "./",
-    "model_name": "test2",
-    "loss_data_name": "test2",
+    "model_name": "test",
+    "loss_data_name": "test",
 
 
     "vocab_size": 10000,

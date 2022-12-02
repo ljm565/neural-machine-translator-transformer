@@ -82,7 +82,7 @@ def main(config_path:Config, args:ArgumentParser):
         trainer.inference('test')
 
     else:
-        print("Please select mode among 'train'")
+        print("Please select mode between 'train' and 'inference'..")
         sys.exit()
 
 
