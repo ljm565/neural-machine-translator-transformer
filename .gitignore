@@ -4,3 +4,4 @@ model/
 loss/
 .DS_Store
 data/processed/
+data/
