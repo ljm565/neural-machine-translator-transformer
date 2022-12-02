@@ -1,27 +1,40 @@
-# Neural Machine Translator Transformer (Tatoeba Dataset)
+# Neural Machine Translator Transformer (WMT'14, IWSLT'14 En-De)
 ## 설명
-Tatoeba Project의 English-French 문장 쌍 데이터를 사용하여 [Transformer](https://arxiv.org/pdf/1706.03762.pdf) 기반의 기계 번역 모델을 제작합니다.
-Transformer 기반 기계 번역 모델에 대한 설명은 [Transformer를 이용한 기계 번역](https://ljm565.github.io/contents/transformer2.html)을 참고하시기 바랍니다.
+WMT'14와 IWSLT'14의 English-Deutschland (영어-독일어) 문장 쌍 데이터를 사용하여 [Transformer](https://arxiv.org/pdf/1706.03762.pdf) 기반의 기계 번역 모델을 제작합니다.
+Transformer 기반 기계 번역 모델에 대한 설명은 [Transformer를 이용한 WMT'14, IWSLT'14 (En-De) 기계 번역](https://ljm565.github.io/contents/transformer2.html)을 참고하시기 바랍니다.
 또한 본 모델은 vanilla transformer에서 사용하는 positional encoding 뿐만 아니라, positional embedding을 선택할 수 있습니다.
-그리고 이렇게 임베딩 방법을 달리한 두 모델의 결과를 비교합니다.
-<br><br>그리고 transformer의 성능을 GRU 기계 번역 모델과 비교하기 위해 이전에 [GRU 기반 기계 번역 프로젝트](https://github.com/ljm565/neural-machine-translator-GRU)와 같은 데이터를 사용하였으며, GRU 프로젝트와 토크나이저, 전처리 기법 등 모든 조건을 똑같이 하여 실험하였습니다.
-GRU 기반의 기계 번역 모델 GitHub 프로젝트는 [neural-machine-translator-GRU](https://github.com/ljm565/neural-machine-translator-GRU)를 참고하시면 됩니다.
-그리고 GRU 기계 번역 프로젝트에 대한 설명은 [Sequence-to-Sequence (Seq2Seq) 모델과 Attention](https://ljm565.github.io/contents/RNN2.html)을 참고하시면 됩니다.
 <br><br><br>
 
 ## 모델 종류
 * ### Transformer
-    English-French 기계 번역 모델 제작을 위해 transformer를 학습합니다.
+    English-Deutschland 기계 번역 모델 제작을 위해 transformer를 학습합니다.
 <br><br><br>
 
 
 ## 토크나이저 종류
-* ### Word Tokenizer
-    [GRU 기반 기계 번역 프로젝트](https://github.com/ljm565/neural-machine-translator-GRU)와 성능을 비교하기 위해 같은 토크나이저 사용합니다.
-<br><br><br>
+* ### Wordpiece Tokenizer
+    Likelihood 기반으로 BPE를 수행한 subword 토크나이저를 사용합니다.
+    또한 영어, 독일어 데이터를 통합하여 shared vocab을 구성합니다.
+
+    * IWSLT'14: IWSLT'14 데이터를 사용할 경우에는 wordpiece 토크나이저의 vocab 파일을 모델 학습 전에 아래 명령어를 이용하여 먼저 제작해야합니다. 제작할 vocab의 크기는 src/tokenizer/make_vocab.sh에서 수정할 수 있습니다(Defaut: 12,000).
+    
+        ```
+        cd src/tokenizer
+        bash ./make_vocab.sh
+        ```
+<br><br>
 
 ## 사용 데이터
-* 실험으로 사용하는 데이터는 [Tatoeba Project](https://www.manythings.org/anki/)의 sentence pair 데이터 중, English-French 데이터셋입니다.
+여기서 나와있는 data_sample은 전체 데이터가 아닌 일부 sample 데이터입니다. 전체 데이터는 아래 링크에서 받을 수 있습니다.
+만약 코드가 돌아가는지 확인하기 위해서는 아래 명령어를 먼저 실행해서 데이터 폴더 이름을 변경해야합니다.
+```
+mv data_sample data
+```
+* ### WMT'14 (En-De)
+    [Stanford WMT'14](https://nlp.stanford.edu/projects/nmt/)의 데이터를 사용.
+
+* ### IWSLT'14 (En-De)
+    [fairseq](https://github.com/facebookresearch/fairseq)의 데이터를 사용.
 <br><br><br>
 
 
@@ -29,10 +42,11 @@ GRU 기반의 기계 번역 모델 GitHub 프로젝트는 [neural-machine-transl
 * ### 학습 방법
     학습을 시작하기 위한 argument는 4가지가 있습니다.<br>
     * [-d --device] {cpu, gpu}, **필수**: 학습을 cpu, gpu로 할건지 정하는 인자입니다.
-    * [-m --mode] {train, test, inference}, **필수**: 학습을 시작하려면 train, 학습된 모델을 가지고 있어서 loss, BLEU 등의 결과를 보고싶은 경우에는 test로 설정해야합니다. 번역기를 테스트 해보고싶다면 inference로 설정해야합니다. test, inference 모드를 사용할 경우, [-n, --name] 인자가 **필수**입니다.
+    * [-m --mode] {train, inference}, **필수**: 학습을 시작하려면 train, 학습된 모델을 가지고 있어서 BLEU 등의 결과를 보고싶은 경우에는 inference로 설정해야합니다.
+    inference 모드를 사용할 경우, [-n, --name] 인자가 **필수**입니다.
     * [-c --cont] {1}, **선택**: 학습이 중간에 종료가 된 경우 다시 저장된 모델의 체크포인트 부분부터 학습을 시작할 수 있습니다. 이 인자를 사용할 경우 -m train 이어야 합니다. 
-    * [-n --name] {name}, **선택**: 이 인자는 -c 1 혹은 -m {test, inference} 경우 사용합니다.
-    중간에 다시 불러서 학습을 할 경우 모델의 이름을 입력하고, test, inference를 할 경우에도 실험할 모델의 이름을 입력해주어야 합니다(최초 학습시 config.json에서 정한 모델의 이름의 폴더가 형성되고 그 폴더 내부에 모델 및 모델 파라미터가 json 파일로 형성 됩니다).<br><br>
+    * [-n --name] {name}, **선택**: 이 인자는 -c 1 혹은 -m {inference} 경우 사용합니다.
+    중간에 다시 불러서 학습을 할 경우 모델의 이름을 입력하고, inference를 할 경우에도 실험할 모델의 이름을 입력해주어야 합니다(최초 학습시 config.json에서 정한 모델의 이름의 폴더가 형성되고 그 폴더 내부에 모델 및 모델 파라미터가 json 파일로 형성 됩니다).<br><br>
 
     터미널 명령어 예시<br>
     * 최초 학습 시
@@ -44,12 +58,7 @@ GRU 기반의 기계 번역 모델 GitHub 프로젝트는 [neural-machine-transl
         ```
         python3 main.py -d gpu -m train -c 1 -n {model_name}
         ```
-    * 최종 학습 된 모델의 test set에 대한 loss, BLEU 등의 결과 등을 확인할 시
-        <br>주의사항: config.json을 수정해야하는 일이 발생 한다면 base_path/config.json이 아닌, base_path/model/{model_name}/{model_name}.json 파일을 수정해야 수정사항이 반영됩니다.
-        ```
-        python3 main.py -d cpu -m test -n {model_name}
-        ```
-    * 최종 학습 된 모델의 test set에 대한 번역 모델을 테스트할 시
+    * 최종 학습 된 모델의 test set에 대한 BLEU 등의 결과 등을 확인할 시
         <br>주의사항: config.json을 수정해야하는 일이 발생 한다면 base_path/config.json이 아닌, base_path/model/{model_name}/{model_name}.json 파일을 수정해야 수정사항이 반영됩니다.
         ```
         python3 main.py -d cpu -m inference -n {model_name}
