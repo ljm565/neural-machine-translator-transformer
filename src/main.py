@@ -79,7 +79,7 @@ def main(config_path:Config, args:ArgumentParser):
             pickle.dump(loss_data, f)
             
     elif args.mode == 'inference':
-        trainer.inference('test')
+        trainer.inference('test', config.result_num)
 
     else:
         print("Please select mode between 'train' and 'inference'..")

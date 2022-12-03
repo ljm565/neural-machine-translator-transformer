@@ -39,6 +39,7 @@ class Trainer_iwslt_ende:
         self.epochs = self.config.epochs
         self.lr = self.config.lr
         self.max_len = self.config.max_len
+        self.result_num = self.config.result_num
 
         # define tokenizer (WMT uses shared tokenizer)
         self.src_tokenizer = Tokenizer_iwslt_ende(self.config)
@@ -96,7 +97,7 @@ class Trainer_iwslt_ende:
                     train_loss_history.append(epoch_loss)
                     self.scheduler.step()
                 else:
-                    bleu2, bleu4, nist2, nist4 = self.inference(phase)
+                    bleu2, bleu4, nist2, nist4 = self.inference(phase, self.result_num)
                     if phase == 'val':
                         val_score_history['bleu2'].append(bleu2)
                         val_score_history['bleu4'].append(bleu4)
@@ -211,6 +212,7 @@ class Trainer_wmt_ende:
         self.epochs = self.config.epochs
         self.lr = self.config.lr
         self.max_len = self.config.max_len
+        self.result_num = self.config.result_num
 
         # define tokenizer (WMT uses shared tokenizer)
         self.src_tokenizer = Tokenizer_wmt_ende()
@@ -268,7 +270,7 @@ class Trainer_wmt_ende:
                     train_loss_history.append(epoch_loss)
                     self.scheduler.step()
                 else:
-                    bleu2, bleu4, nist2, nist4 = self.inference(phase)
+                    bleu2, bleu4, nist2, nist4 = self.inference(phase, self.result_num)
                     if phase == 'val':
                         val_score_history['bleu2'].append(bleu2)
                         val_score_history['bleu4'].append(bleu4)
