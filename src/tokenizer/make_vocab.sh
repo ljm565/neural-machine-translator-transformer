@@ -3,7 +3,7 @@
 ## setup
 dpath=../../data/iwslt14-en-de/raw
 tpath=../../data/iwslt14-en-de/tokenizer
-vocab_size=12000
+vocab_size=10000
 
 ## cat both en and de data
 cat $dpath/train.en $dpath/val.en $dpath/test.en $dpath/train.de $dpath/val.de $dpath/test.de | shuf > $dpath/train.all.both
