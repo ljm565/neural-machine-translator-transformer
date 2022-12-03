@@ -218,13 +218,13 @@ class DecoderLayer(nn.Module):
         self.dropout_layer = nn.Dropout(self.dropout)
         self.layer_norm = nn.LayerNorm(self.hidden_dim, eps=self.layernorm_eps)
 
-        self.masked_self_atention = MultiHeadAttention(self.hidden_dim, self.num_head, self.bias, self_attn=True, causal=True)
+        self.masked_self_attention = MultiHeadAttention(self.hidden_dim, self.num_head, self.bias, self_attn=True, causal=True)
         self.enc_dec_attention = MultiHeadAttention(self.hidden_dim, self.num_head, self.bias, self_attn=False, causal=False)
         self.positionWiseFeedForward = PositionWiseFeedForward(self.hidden_dim, self.ffn_dim, self.dropout, self.bias)
 
 
     def forward(self, x, enc_output, dec_causal_mask, enc_dec_mask):
-        dec_self_attn_wts, output = self.masked_self_atention(query=x, key=x, value=x, mask=dec_causal_mask)
+        dec_self_attn_wts, output = self.masked_self_attention(query=x, key=x, value=x, mask=dec_causal_mask)
         output = self.dropout_layer(output)
         output = self.layer_norm(x + output)
 
