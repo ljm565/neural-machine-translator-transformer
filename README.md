@@ -3,6 +3,7 @@
 WMT'14와 IWSLT'14의 English-Deutschland (영어-독일어) 문장 쌍 데이터를 사용하여 [Transformer](https://arxiv.org/pdf/1706.03762.pdf) 기반의 기계 번역 모델을 제작합니다.
 Transformer 기반 기계 번역 모델에 대한 설명은 [Transformer를 이용한 WMT'14, IWSLT'14 (En-De) 기계 번역](https://ljm565.github.io/contents/transformer2.html)을 참고하시기 바랍니다.
 또한 본 모델은 vanilla transformer에서 사용하는 positional encoding 뿐만 아니라, positional embedding을 선택할 수 있습니다.
+마지막으로 최종 학습된 모델을 바탕으로 기계 번역 benchmark score를 계산할 때 많이 사용되는 [multi_bleu.perl](https://github.com/moses-smt/mosesdecoder/blob/master/scripts/generic/multi-bleu.perl)을 이용하여 점수를 계산할 수도 있습니다.
 <br><br><br>
 
 ## 모델 종류
@@ -22,6 +23,25 @@ Transformer 기반 기계 번역 모델에 대한 설명은 [Transformer를 이�
         cd src/tokenizer
         bash ./make_vocab.sh
         ```
+<br><br>
+
+## BLEU Score 계산 방법
+* ### [NLTK](https://www.nltk.org/_modules/nltk/translate/bleu_score.html)
+    기본적으로 학습을 진행할 때 모델 저장의 지표로 사용되는 BLEU-4 계산은 NLTK를 사용합니다.
+
+* ### [multi_bleu.perl](https://github.com/moses-smt/mosesdecoder/blob/master/scripts/generic/multi-bleu.perl)
+    학습이 완료되어 validation set에 대해 가장 높은 점수를 내어준 모델을 저장한 후, test set에 대하여 아래의 명령어로 multi_bleu.perl을 이용하여 BLEU score를 계산할 수 있습니다.
+    ```
+    # device: cpu or gpu
+    python3 src/main.py -d {device} -m multi_bleu_perl -n {model_name}
+    ```
+    
+    만약 위의 명령어가 permission denied error가 나타난다면 아래의 명령어를 추가로 실행해주어야합니다.
+    ```
+    # device: cpu or gpu
+    chmode +x etc/multi_bleu.perl
+    python3 src/main.py -d {device} -m multi_bleu_perl -n {model_name}
+    ```
 <br><br>
 
 ## 사용 데이터
@@ -52,22 +72,22 @@ mv data_sample data
     터미널 명령어 예시<br>
     * 최초 학습 시
         ```
-        python3 main.py -d cpu -m train
+        python3 src/main.py -d cpu -m train
         ```
     * 중간에 중단 된 모델 이어서 학습 시
         <br>주의사항: config.json을 수정해야하는 일이 발생 한다면 base_path/config.json이 아닌, base_path/model/{model_name}/{model_name}.json 파일을 수정해야 합니다.
         ```
-        python3 main.py -d gpu -m train -c 1 -n {model_name}
+        python3 src/main.py -d gpu -m train -c 1 -n {model_name}
         ```
     * 최종 학습 된 모델의 test set에 대한 BLEU 등의 결과 등을 확인할 시
         <br>주의사항: config.json을 수정해야하는 일이 발생 한다면 base_path/config.json이 아닌, base_path/model/{model_name}/{model_name}.json 파일을 수정해야 수정사항이 반영됩니다.
         ```
-        python3 main.py -d cpu -m inference -n {model_name}
+        python3 src/main.py -d cpu -m inference -n {model_name}
         ```
     <br><br>
 
 * ### 모델 학습 조건 설정 (config.json)
-    * **주의사항: 최초 학습 시 config.json이 사용되며, 이미 한 번 학습을 한 모델에 대하여 parameter를 바꾸고싶다면 base_path/model/{model_name}/{model_name}.json 파일을 수정해야 합니다.**
+    **주의사항: 최초 학습 시 config.json이 사용되며, 이미 한 번 학습을 한 모델에 대하여 parameter를 바꾸고싶다면 base_path/model/{model_name}/{model_name}.json 파일을 수정해야 합니다.**
     * data_type: {"iwslt14-ende", "wmt14-ende"} 중 선택. 전자와 후자는 각각 IWSLT'14, WMT'14 데이터를 의미.
     * ende: {0, 1} 중 선택. 전자는 de-en 번역, 후자는 en-de 번역을 의미.
     * base_path: 학습 관련 파일이 저장될 위치.
@@ -96,6 +116,7 @@ mv data_sample data
 * ### 학습 데이터별 결과
     아래 score의 결과는 validation set의 inference로 확인한 결과입니다.
     그리고 아래 표기된 결과는 test set에서 가장 높은 BLEU-4를 달성한 모델의 점수입니다.
+    BLEU-4 score는 각각 NLTk, multi_bleu.perl을 사용하여 계산한 결과입니다.
     따라서 그래프에서 보이는 학습 중 best score와 차이가 있을 수 있습니다.
 
     * WMT'14 (En-De) Validation Set BLEU History<br>
