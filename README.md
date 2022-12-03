@@ -94,94 +94,61 @@ mv data_sample data
 
 ## 결과
 * ### Transformer Positional 임베딩 방법에 따른 모델별 결과
-    아래 loss, score의 결과는 inference의 결과가 아닌 teacher forcing으로 확인한 결과입니다.
+    아래 score의 결과는 validation set의 inference로 확인한 결과입니다.
     그리고 아래 표기된 결과는 test set에서 가장 높은 BLEU-4를 달성한 모델의 점수입니다.
     따라서 그래프에서 보이는 학습 중 best score와 차이가 있을 수 있습니다.
-    마지막으로 inference 방식으로 계산된 loss 및 score를 보고싶다면 inference mode로 실행 시 자동 계산 되므로 확인할 수 있습니다.
-    <br><br>그리고 transformer와 비교하는 GRU 모델은 [neural-machine-translator-GRU](https://github.com/ljm565/neural-machine-translator-GRU) 프로젝트의 "Model with Attention" 모델입니다.
-    이 모델의 학습 중 가장 높은 BLEU-4를 달성한 모델(9 epoch)의 결과를 표기하였습니다.
-    * Training Set Loss History<br>
-        <img src="images/trainLoss.png" width="80%"><br><br>
 
-    * Test Set Loss History<br>
-        <img src="images/testLoss.png" width="80%"><br>
-        * Model with Positional Embedding: 1.1979
-        * Model with Positional Encoding: 0.9946<br><br>
+    * WMT'14 (En-De) Validation Set BLEU History<br>
+        <img src="images/wmt_bleu.png" width="80%"><br>
+        * Best test set BLEU-4: 0.2803<br><br>
 
-    * Test Set Perplexity (PPL) History<br>
-        <img src="images/testPPL.png" width="80%"><br>
-        * Model with Positional Embedding: 3.3132
-        * Model with Positional Encoding: 2.7038<br><br>
+    * WMT'14 (En-De) Validation Set NIST History<br>
+        <img src="images/wmt_nist.png" width="80%"><br><br>
 
-    * BLEU-2 Score History<br>
-        <img src="images/bleu2.png" width="80%"><br>
-        * Model with Positional Embedding: 0.6411
-        * Model with Positional Encoding: 0.6529
-        * GRU Model with Bahdanau Attention: 0.5818<br><br>
+    * IWSLT'14 (En-De) Validation Set BLEU History<br>
+        <img src="images/iwslt_bleu.png" width="80%"><br>
+        * Best test set BLEU-4: 0.2579<br><br>
 
-    * BLEU-4 Score History<br>
-        <img src="images/bleu4.png" width="80%"><br>
-        * Model with Positional Embedding: 0.4857
-        * Model with Positional Encoding: 0.4949
-        * GRU Model with Bahdanau Attention: 0.4071<br><br>
-
-    * NIST-2 Score History<br>
-        <img src="images/nist2.png" width="80%"><br>
-        * Model with Positional Embedding: 7.5464
-        * Model with Positional Encoding: 7.7141
-        * GRU Model with Bahdanau Attention: 6.9003<br><br>
-
-    * NIST-4 Score History<br>
-        <img src="images/nist4.png" width="80%"><br>
-        * Model with Positional Embedding: 7.9196
-        * Model with Positional Encoding: 8.0932
-        * GRU Model with Bahdanau Attention: 7.2171<br><br>
+    * IWSLT'14 (En-De) Validation Set NIST History<br>
+        <img src="images/iwslt_nist.png" width="80%"><br><br>
 
 
     * 기계 번역 결과 샘플<br>
-        Inference의 결과가 아닌 teacher forcing으로 확인한 결과입니다.
-        Inference 방식으로 계산된 번역 결과를 확인 하고싶다면 inference mode로 실행 시 확인할 수 있습니다.
-        그리고 inference를 할 때 위의 번역 결과 샘플을 내어준 후, 실제 번역기 테스트가 가능합니다.
-        * Model with Positional Embedding
+        Inference로 확인한 결과입니다.
+        * WMT'14 학습 모델
             ```
             # Sample 1
-            src : i'm sure of this .
-            gt  : j'en suis sur .
-            pred: j'en suis sure .
+            gt  : „ erwachsene sollten in der lage sein , eigene entscheidungen uber ihr rechtliche ##s geschlecht zu treffen “ , erklarte sie .
+            pred: " erwachsene sollten in der lage sein , ihre eigenen entscheidungen uber das legal ##e geschlecht zu treffen " , sagte sie .
 
 
             # Sample 2
-            src : we have something very important that we need to discuss .
-            gt  : il nous faut discuter de quelque chose de tres important .
-            pred: nous nous faut des de quelque chose de tres important .
+            gt  : insgesamt seien vier verkehrs ##schauen durchgefuhrt worden , auch ein kreis ##verkehr wurde ange ##dacht , allerdings wegen der enge in dem kreuzung ##s ##bereich sulz ##bach ##weg / kirchimportant .
+            pred: insgesamt wurden vier sicherheits ##kontrollen im straßenverkehr durchgefuhrt , und auch ein kreis ##verkehr wurde berucksichtigt , jedoch wurde dieser gedanke aufgrund der engen linien abgelehnt .
 
 
             # Sample 3
-            src : why are they so upset ?
-            gt  : pourquoi sont-ils si [UNK] ?
-            pred: pourquoi sont-elles si contrarie ?
+            gt  : austral ##ische flug ##pass ##agi ##e ##re mussen auch weiterhin tablets und smartphones bei start und landung abschalten , trotz bemuhungen in den usa , die regelungen fur derartige gerate
+            pred: flug ##gaste austral ##ischer fluggesellschaft mussen trotz der bemuhungen in den usa , die bestimmungen uber die flug ##pass ##agi ##e ##re zu locker ##n , ihre flug ##table ##tten
 
             ```
 
 
-        * Model with Positional Encoding
+        * IWSLT'14 학습 모델
             ```
             # Sample 1
-            src : that isn't enough .
-            gt  : ce n'est pas assez .
-            pred: ce n'est pas suffisant .
+            gt  : ein sehr konk ##rete ##r wunsch , dass wir diese technologie erfinden .
+            pred: es ist ein sehr konk ##ret wunsch , dass wir diese technologie erfinden .
 
 
             # Sample 2
-            src : i don't think that's the point .
-            gt  : je ne pense que cela soit ce dont il s'agit .
-            pred: je ne pense pas ce se pas que il s'agit .
+            gt  : wir durch ##laufen initi ##ations ##ri ##t ##ual ##e .
+            pred: wir durch ##laufen den initi ##ations ##ri ##k .
 
 
             # Sample 3
-            src : everyone laughed at him .
-            gt  : tout le monde a ri de lui .
-            pred: tout le monde l'a ri de lui .
+            gt  : vac ##la ##v have ##l , der große ts ##che ##ch ##ische politiker , hat einmal gesagt :
+            pred: v ##la ##v haben ##l den großen c ##ze ##ch - anfü ##hrer , darüber gesprochen .
             ```
             <br><br>
 
