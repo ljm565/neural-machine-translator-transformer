@@ -67,12 +67,15 @@ mv data_sample data
 
 * ### 모델 학습 조건 설정 (config.json)
     * **주의사항: 최초 학습 시 config.json이 사용되며, 이미 한 번 학습을 한 모델에 대하여 parameter를 바꾸고싶다면 base_path/model/{model_name}/{model_name}.json 파일을 수정해야 합니다.**
+    * data_type: {"iwslt14-ende", "wmt14-ende"} 중 선택. 전자와 후자는 각각 IWSLT'14, WMT'14 데이터를 의미.
+    * ende: {0, 1} 중 선택. 전자는 de-en 번역, 후자는 en-de 번역을 의미.
     * base_path: 학습 관련 파일이 저장될 위치.
     * model_name: 학습 모델이 저장될 파일 이름 설정. 모델은 base_path/model/{model_name}/{model_name}.pt 로 저장.
     * loss_data_name: 학습 시 발생한 loss data를 저장하기 위한 이름 설정. base_path/loss/{loss_data_name}.pkl 파일로 저장. 내부에 중단된 학습을 다시 시작할 때, 학습 과정에 발생한 loss 데이터를 그릴 때 등 필요한 데이터를 dictionary 형태로 저장.
-    * vocab_size: 최대 vocab size 설정.
+    * vocab_size: IWSLT'14 학습 시 제작된 vocab 파일들 중 원하는 vocab size 선택. 만약 vocab_size를 10,000으로 설정 했을 시, IWSLT'14 데이터 폴더 내에 10,000개의 vocab으로 학습된 파일이 있어야함.
     * max_len: 토큰화 된 번역 source, target 데이터의 최대 길이.
     * hidden_dim: Transformer 모델의 hidden dimension.
+    * ffn_dim: Transformer 모델의 feed forward network의 hidden dimension.
     * enc_num_layers: Transformer encoder의 레이어 수.
     * dec_num_layers: Transformer decoder의 레이어 수.
     * num_head: Transformer attention head 수.
