@@ -93,7 +93,7 @@ mv data_sample data
 
 
 ## 결과
-* ### Transformer Positional 임베딩 방법에 따른 모델별 결과
+* ### 학습 데이터별 결과
     아래 score의 결과는 validation set의 inference로 확인한 결과입니다.
     그리고 아래 표기된 결과는 test set에서 가장 높은 BLEU-4를 달성한 모델의 점수입니다.
     따라서 그래프에서 보이는 학습 중 best score와 차이가 있을 수 있습니다.
