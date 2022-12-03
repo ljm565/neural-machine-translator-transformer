@@ -311,9 +311,6 @@ class Trainer_wmt_ende:
                             best_val_bleu = val_score_history['bleu4'][-1]
                             best_epoch = best_epoch_info + epoch + 1
                             save_checkpoint(self.model_path, self.model, self.optimizer)
-                        
-                        # if early_stop % 5 == 0:
-                        #     self.scheduler.step()
 
             print("time: {} s\n".format(time.time() - start))
             print('\n'*2)
