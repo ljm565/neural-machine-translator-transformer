@@ -100,14 +100,16 @@ mv data_sample data
 
     * WMT'14 (En-De) Validation Set BLEU History<br>
         <img src="images/wmt_bleu.png" width="80%"><br>
-        * Best test set BLEU-4: 0.2803<br><br>
+        * Best test set BLEU-4: 0.2803 (NLTK)
+        * Best test set BLEU-4: 0.2803 (multi_bleu.perl)<br><br>
 
     * WMT'14 (En-De) Validation Set NIST History<br>
         <img src="images/wmt_nist.png" width="80%"><br><br>
 
     * IWSLT'14 (En-De) Validation Set BLEU History<br>
         <img src="images/iwslt_bleu.png" width="80%"><br>
-        * Best test set BLEU-4: 0.2579<br><br>
+        * Best test set BLEU-4: 0.2579 (NLTK)
+        * Best test set BLEU-4: 0.2580 (multi_bleu.perl)<br><br>
 
     * IWSLT'14 (En-De) Validation Set NIST History<br>
         <img src="images/iwslt_nist.png" width="80%"><br><br>

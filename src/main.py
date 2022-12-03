@@ -81,8 +81,11 @@ def main(config_path:Config, args:ArgumentParser):
     elif args.mode == 'inference':
         trainer.inference('test', config.result_num)
 
+    elif args.mode == 'multi_bleu_perl':
+        trainer.multi_bleu_perl('test')
+
     else:
-        print("Please select mode between 'train' and 'inference'..")
+        print("Please select mode between 'train', 'inference', and 'multi_bleu_perl'..")
         sys.exit()
 
 
@@ -93,7 +96,7 @@ if __name__ == '__main__':
 
     parser = ArgumentParser()
     parser.add_argument('-d', '--device', type=str, required=True, choices=['cpu', 'gpu'])
-    parser.add_argument('-m', '--mode', type=str, required=True, choices=['train', 'inference'])
+    parser.add_argument('-m', '--mode', type=str, required=True, choices=['train', 'inference', 'multi_bleu_perl'])
     parser.add_argument('-c', '--cont', type=int, default=0, required=False)
     parser.add_argument('-n', '--name', type=str, required=False)
     args = parser.parse_args()

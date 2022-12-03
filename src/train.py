@@ -53,7 +53,7 @@ class Trainer_iwslt_ende:
             self.dataloaders = {
                 s: DataLoader(d, self.batch_size, shuffle=True, num_workers=4) if s == 'train' else DataLoader(d, self.batch_size, shuffle=False, num_workers=4)
                 for s, d in self.dataset.items()}
-        elif self.mode == 'inference':
+        else:
             self.dataset = {s: DLoader_iwslt(load_dataset(p), self.tokenizers, self.config) for s, p in self.data_path.items() if s == 'test'}
             self.dataloaders = {s: DataLoader(d, self.batch_size, shuffle=False, num_workers=4) for s, d in self.dataset.items() if s == 'test'}
 
@@ -71,7 +71,7 @@ class Trainer_iwslt_ende:
                 self.optimizer.load_state_dict(self.check_point['optimizer'])
                 del self.check_point
                 torch.cuda.empty_cache()
-        elif self.mode == 'inference':
+        else:
             self.check_point = torch.load(self.model_path, map_location=self.device)
             self.model.load_state_dict(self.check_point['model'])    
             self.model.eval()
@@ -188,6 +188,33 @@ class Trainer_iwslt_ende:
         return bleu2, bleu4, nist2, nist4
 
 
+    def multi_bleu_perl(self, phase):
+        self.model.eval()
+        all_trg, all_output = [], []
+
+        with torch.no_grad():
+            for src, trg in tqdm(self.dataloaders[phase], desc=phase+' inferencing..'):
+                src, trg = src.to(self.device), trg.to(self.device)
+                all_trg.append(trg.detach().cpu())
+            
+                decoder_all_output = []
+                for j in range(self.max_len):
+                    if j == 0:
+                        trg = trg[:, j].unsqueeze(1)
+                        _, output = self.model(src, trg)
+                        trg = torch.cat((trg, torch.argmax(output[:, -1], dim=-1).unsqueeze(1)), dim=1)
+                    else:
+                        _, output = self.model(src, trg)
+                        trg = torch.cat((trg, torch.argmax(output[:, -1], dim=-1).unsqueeze(1)), dim=1)
+                    decoder_all_output.append(output[:, -1].unsqueeze(1).detach().cpu())
+                        
+                all_output.append(torch.argmax(torch.cat(decoder_all_output, dim=1), dim=-1))
+            
+        # calculate scores
+        all_ref, all_pred = tensor2list(all_trg, all_output, self.trg_tokenizer)
+        cal_multi_bleu_perl(self.base_path, all_ref, all_pred)
+
+
 
 class Trainer_wmt_ende:
     def __init__(self, config:Config, device:torch.device, mode:str, continuous:int):
@@ -226,7 +253,7 @@ class Trainer_wmt_ende:
             self.dataloaders = {
                 s: DataLoader(d, self.batch_size, shuffle=True, num_workers=4) if s == 'train' else DataLoader(d, self.batch_size, shuffle=False, num_workers=4)
                 for s, d in self.dataset.items()}
-        elif self.mode == 'inference':
+        else:
             self.dataset = {s: DLoader_wmt(load_dataset(p), self.tokenizers, self.config) for s, p in self.data_path.items() if s == 'test'}
             self.dataloaders = {s: DataLoader(d, self.batch_size, shuffle=False, num_workers=4) for s, d in self.dataset.items() if s == 'test'}
 
@@ -244,7 +271,7 @@ class Trainer_wmt_ende:
                 self.optimizer.load_state_dict(self.check_point['optimizer'])
                 del self.check_point
                 torch.cuda.empty_cache()
-        elif self.mode == self.mode == 'inference':
+        else:
             self.check_point = torch.load(self.model_path, map_location=self.device)
             self.model.load_state_dict(self.check_point['model'])    
             self.model.eval()
@@ -362,3 +389,30 @@ class Trainer_wmt_ende:
         print_samples(all_ref, all_pred, ids)
 
         return bleu2, bleu4, nist2, nist4
+
+
+    def multi_bleu_perl(self, phase):
+        self.model.eval()
+        all_trg, all_output = [], []
+
+        with torch.no_grad():
+            for src, trg in tqdm(self.dataloaders[phase], desc=phase+' inferencing..'):
+                src, trg = src.to(self.device), trg.to(self.device)
+                all_trg.append(trg.detach().cpu())
+            
+                decoder_all_output = []
+                for j in range(self.max_len):
+                    if j == 0:
+                        trg = trg[:, j].unsqueeze(1)
+                        _, output = self.model(src, trg)
+                        trg = torch.cat((trg, torch.argmax(output[:, -1], dim=-1).unsqueeze(1)), dim=1)
+                    else:
+                        _, output = self.model(src, trg)
+                        trg = torch.cat((trg, torch.argmax(output[:, -1], dim=-1).unsqueeze(1)), dim=1)
+                    decoder_all_output.append(output[:, -1].unsqueeze(1).detach().cpu())
+                        
+                all_output.append(torch.argmax(torch.cat(decoder_all_output, dim=1), dim=-1))
+            
+        # calculate scores
+        all_ref, all_pred = tensor2list(all_trg, all_output, self.trg_tokenizer)
+        cal_multi_bleu_perl(self.base_path, all_ref, all_pred)

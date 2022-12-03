@@ -21,6 +21,11 @@ def txt_read(path):
     return lines
 
 
+def txt_write(path, data):
+    with open(path, 'w') as f:
+        f.writelines(data)
+
+
 def save_data(base_path, data_type):
     if data_type == 'iwslt14-ende':
         if not (os.path.isfile(base_path+'data/iwslt14-en-de/processed/en-de.train') and os.path.isfile(base_path+'data/iwslt14-en-de/processed/en-de.val') and os.path.isfile(base_path+'data/iwslt14-en-de/processed/en-de.test')):
@@ -79,8 +84,6 @@ def cal_scores(ref, pred, type, n_gram):
 
 def tensor2list(ref, pred, tokenizer):
     ref, pred = torch.cat(ref, dim=0)[:, 1:], torch.cat(pred, dim=0)[:, :-1]
-    # ref = [[tokenizer.decode(ref[i].tolist()).split()] for i in range(ref.size(0))]
-    # pred = [tokenizer.decode(pred[i].tolist()).split() for i in range(pred.size(0))]
     ref = [[tokenizer.tokenize(tokenizer.decode(ref[i].tolist()))] for i in range(ref.size(0))]
     pred = [tokenizer.tokenize(tokenizer.decode(pred[i].tolist())) for i in range(pred.size(0))]
     return ref, pred
@@ -93,3 +96,17 @@ def print_samples(ref, pred, ids):
         print('gt  : {}'.format(r))
         print('pred: {}\n'.format(p))
     print('-'*50 + '\n')
+
+
+def cal_multi_bleu_perl(base_path, ref, pred):
+    r = [' '.join(s[0])+'\n' for s in ref]
+    p = [' '.join(s)+'\n' for s in pred]
+
+    txt_write(base_path+'etc/ref.txt', r)
+    txt_write(base_path+'etc/pred.txt', p)
+
+    cmd = base_path+'etc/multi_bleu.perl ' + base_path+'etc/ref.txt < ' + base_path+'etc/pred.txt'
+    os.system(cmd)
+
+    os.remove(base_path+'etc/ref.txt')
+    os.remove(base_path+'etc/pred.txt')
