@@ -86,10 +86,6 @@ def tensor2list(ref, pred, tokenizer):
     return ref, pred
 
 
-
-"""
-utils for wmt14-ende
-"""
 def print_samples(ref, pred, ids):
     print('-'*50)
     for i in ids:
