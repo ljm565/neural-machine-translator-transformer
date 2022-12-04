@@ -116,21 +116,21 @@ mv data_sample data
 * ### 학습 데이터별 결과
     아래 score의 결과는 validation set의 inference로 확인한 결과입니다.
     그리고 아래 표기된 결과는 validation set의 가장 높은 BLEU-4를 달성했을 때 모델의 test set BLEU-4 입니다.
-    BLEU-4 score는 각각 NLTk, multi_bleu.perl을 사용하여 계산한 결과입니다.
     따라서 그래프에서 보이는 학습 중 best score와 차이가 있을 수 있습니다.
-
+    BLEU-4 score는 각각 NLTk, multi_bleu.perl을 사용하여 계산한 결과입니다.
+    
     * WMT'14 (En-De) Validation Set BLEU History<br>
         <img src="images/wmt_bleu.png" width="80%"><br>
-        * Best test set BLEU-4: 0.2803 (NLTK)
-        * Best test set BLEU-4: 0.2803 (multi_bleu.perl)<br><br>
+        * Test set BLEU-4: 0.2803 (NLTK)
+        * Test set BLEU-4: 0.2803 (multi_bleu.perl)<br><br>
 
     * WMT'14 (En-De) Validation Set NIST History<br>
         <img src="images/wmt_nist.png" width="80%"><br><br>
 
     * IWSLT'14 (En-De) Validation Set BLEU History<br>
         <img src="images/iwslt_bleu.png" width="80%"><br>
-        * Best test set BLEU-4: 0.2579 (NLTK)
-        * Best test set BLEU-4: 0.2580 (multi_bleu.perl)<br><br>
+        * Test set BLEU-4: 0.2579 (NLTK)
+        * Test set BLEU-4: 0.2580 (multi_bleu.perl)<br><br>
 
     * IWSLT'14 (En-De) Validation Set NIST History<br>
         <img src="images/iwslt_nist.png" width="80%"><br><br>
