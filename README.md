@@ -115,7 +115,7 @@ mv data_sample data
 ## 결과
 * ### 학습 데이터별 결과
     아래 score의 결과는 validation set의 inference로 확인한 결과입니다.
-    그리고 아래 표기된 결과는 test set에서 가장 높은 BLEU-4를 달성한 모델의 점수입니다.
+    그리고 아래 표기된 결과는 validation set의 가장 높은 BLEU-4를 달성했을 때 모델의 test set BLEU-4 입니다.
     BLEU-4 score는 각각 NLTk, multi_bleu.perl을 사용하여 계산한 결과입니다.
     따라서 그래프에서 보이는 학습 중 best score와 차이가 있을 수 있습니다.
 
