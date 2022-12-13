@@ -79,7 +79,7 @@ mv data_sample data
         ```
         python3 src/main.py -d gpu -m train -c 1 -n {model_name}
         ```
-    * 최종 학습 된 모델의 test set에 대한 BLEU 등의 결과 등을 확인할 시
+    * 최종 학습 된 모델의 test set에 대한 BLEU 등의 결과 등을 확인할 시 (multi_bleu.perl은 "BLEU Score 계산 방법" 참고)
         <br>주의사항: config.json을 수정해야하는 일이 발생 한다면 base_path/config.json이 아닌, base_path/model/{model_name}/{model_name}.json 파일을 수정해야 수정사항이 반영됩니다.
         ```
         python3 src/main.py -d cpu -m inference -n {model_name}
