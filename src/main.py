@@ -49,7 +49,7 @@ def main(config_path:Config, args:ArgumentParser):
                 sys.exit()
             config.tokenizer_path = base_path+'data/iwslt14-en-de/tokenizer/vocab_'+str(config.vocab_size)+'/vocab.txt'
 
-        # dataset selection
+        # split dataset path
         config.dataset_path = make_dataset_path(base_path, data_type)
         
         # redefine config
