@@ -309,17 +309,3 @@ class Transformer(nn.Module):
         all_cross_attn_wts, output = self.decoder(trg, enc_output, dec_causal_mask, enc_dec_mask)
         output = self.fc(output)
         return all_cross_attn_wts, output
-
-
-if __name__ == '__main__':
-    import sys
-    sys.path.append('/data2/junminlee/Python/Practice/single-sequence-decoder-nmt/src')
-    from utils.config import Config
-    from tokenizer import Tokenizer_wmt_ende, Tokenizer_iwslt_ende
-
-    config = Config('src/config.json')
-    config.tokenizer_path =  "./data/iwslt14-en-de/tokenizer/vocab_10000/vocab.txt"
-    tokenizer = Tokenizer_iwslt_ende(config)
-    device = torch.device('cpu')
-    model = Transformer(config, [tokenizer, tokenizer], device)
-    print(sum(p.numel() for p in model.parameters() if p.requires_grad))
