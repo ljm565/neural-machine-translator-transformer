@@ -85,7 +85,7 @@ def main(config_path:Config, args:ArgumentParser):
         trainer.multi_bleu_perl('test')
 
     else:
-        print("Please select mode between 'train', 'inference', and 'multi_bleu_perl'..")
+        print("Please select mode among 'train', 'inference', and 'multi_bleu_perl'..")
         sys.exit()
 
 
