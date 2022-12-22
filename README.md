@@ -91,7 +91,7 @@ mv data_sample data
     * data_type: {"iwslt14-ende", "wmt14-ende"} 중 선택. 전자와 후자는 각각 IWSLT'14, WMT'14 데이터를 의미.
     * ende: {0, 1} 중 선택. 전자는 de-en 번역, 후자는 en-de 번역을 의미.
     * base_path: 학습 관련 파일이 저장될 위치.
-    * model_name: 학습 모델이 저장될 파일 이름 설정. 모델은 base_path/model/{model_name}/{model_name}.pt 로 저장.
+    * model_name: 학습 모델이 저장될 파일 이름 설정. 모델은 base_path/src/model/{model_name}/{model_name}.pt 로 저장.
     * loss_data_name: 학습 시 발생한 loss data를 저장하기 위한 이름 설정. base_path/loss/{loss_data_name}.pkl 파일로 저장. 내부에 중단된 학습을 다시 시작할 때, 학습 과정에 발생한 loss 데이터를 그릴 때 등 필요한 데이터를 dictionary 형태로 저장.
     * vocab_size: IWSLT'14 학습 시 제작된 vocab 파일들 중 원하는 vocab size 선택. 만약 vocab_size를 10,000으로 설정 했을 시, data/iwslt-en-de/tokenizer 폴더 내에 vocab_10000이라는 이름의 학습된 폴더 있어야함.
     * max_len: 토큰화 된 번역 source, target 데이터의 최대 길이.
