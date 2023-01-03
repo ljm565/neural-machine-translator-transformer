@@ -89,10 +89,10 @@ def tensor2list(ref, pred, tokenizer):
     return ref, pred
 
 
-def print_samples(ref, pred, ids):
+def print_samples(ref, pred, ids, trg_tokenizer):
     print('-'*50)
     for i in ids:
-        r, p = ' '.join(ref[i][0]), ' '.join(pred[i])
+        r, p = trg_tokenizer.tokenizer.convert_tokens_to_string(ref[i][0]), trg_tokenizer.tokenizer.convert_tokens_to_string(pred[i])
         print('gt  : {}'.format(r))
         print('pred: {}\n'.format(p))
     print('-'*50 + '\n')

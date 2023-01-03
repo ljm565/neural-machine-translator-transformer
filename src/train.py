@@ -183,7 +183,7 @@ class Trainer_iwslt_ende:
 
         # print samples
         ids = random.sample(list(range(len(all_pred))), result_num)
-        print_samples(all_ref, all_pred, ids)
+        print_samples(all_ref, all_pred, ids, self.trg_tokenizer)
 
         return bleu2, bleu4, nist2, nist4
 
@@ -383,7 +383,7 @@ class Trainer_wmt_ende:
 
         # print samples
         ids = random.sample(list(range(len(all_pred))), result_num)
-        print_samples(all_ref, all_pred, ids)
+        print_samples(all_ref, all_pred, ids, self.trg_tokenizer)
 
         return bleu2, bleu4, nist2, nist4
 
