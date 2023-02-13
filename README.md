@@ -17,7 +17,7 @@ Transformer 기반 기계 번역 모델에 대한 설명은 [Transformer를 이�
     Likelihood 기반으로 BPE를 수행한 subword 토크나이저를 사용합니다.
     또한 영어, 독일어 데이터를 통합하여 shared vocab을 구성합니다.
 
-    * IWSLT'14: IWSLT'14 데이터를 사용할 경우에는 wordpiece 토크나이저의 vocab 파일을 모델 학습 전에 아래 명령어를 이용하여 먼저 제작해야합니다. 제작할 vocab의 크기는 src/tokenizer/make_vocab.sh에서 수정할 수 있습니다(Defaut: 10,000).
+    * IWSLT'14: IWSLT'14 데이터를 사용할 경우에는 wordpiece 토크나이저의 vocab 파일을 모델 학습 전에 아래 명령어를 이용하여 먼저 제작해야합니다. 제작할 vocab의 크기는 src/tokenizer/make_vocab.sh에서 수정할 수 있습니다(Default: 10,000).
     
         ```
         cd src/tokenizer
