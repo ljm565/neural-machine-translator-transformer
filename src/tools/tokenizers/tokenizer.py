@@ -2,7 +2,7 @@ from transformers import BertTokenizer
 
 
 
-class Tokenizer_iwslt_ende:
+class IWSLTTokenizer_EnDe:
     def __init__(self, config):
         self.tokenizer = BertTokenizer(vocab_file=config.tokenizer_path, do_lower_case=False) 
 
@@ -36,7 +36,7 @@ class Tokenizer_iwslt_ende:
 
 
 
-class Tokenizer_wmt_ende:
+class WMTTokenizer_EnDe:
     def __init__(self):
         self.tokenizer = BertTokenizer.from_pretrained("jhu-clsp/bibert-ende")
 
