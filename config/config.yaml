@@ -1,0 +1,46 @@
+# base
+seed: 0
+deterministic: True
+
+# environment config
+device: cpu     # examples: [0], [0,1], [1,2,3], cpu, mps... 
+
+# project config
+project: outputs/transformer
+name: iwslt14-ende
+
+# model config
+vocab_size: 10000
+max_len: 32
+hidden_dim: 1024
+ffn_dim: 4096
+enc_num_layers: 6
+dec_num_layers: 6
+num_heads: 6
+bias: 0
+dropout: 0.1
+layernorm_eps: 1e-6
+pos_encoding: False     # If False, positional positional embedding will be used. If True, positional encoding will be used.
+
+# data config
+workers: 0               # Don't worry to set worker. The number of workers will be set automatically according to the batch size.
+training_data: iwslt14   # You can choose amoge [iwslt14, wmt14, custom].
+iwslt14:
+    ende: True           # If True, en-de translation will be used. If False, de-en translation will be used.
+    path: data/
+wmt14:
+    ende: True           # If True, en-de translation will be used. If False, de-en translation will be used.
+    path: data/
+CUSTOM:
+    train_data_path: null
+    validation_data_path: null
+    test_data_path: null
+
+# train config
+batch_size: 128
+epochs: 100
+lr: 1e-4
+
+# logging config
+common: ['train_loss', 'validation_loss']
+metrics: ['ppl', 'bleu2', 'bleu4', 'nist2', 'nist4']   # You can add more metrics after implements metric validation codes
