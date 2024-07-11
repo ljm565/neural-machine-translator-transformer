@@ -37,9 +37,9 @@ Transformer 기반 기계 번역 모델에 대한 설명은 [Transformer를 이�
     ```
     
     만약 위의 명령어가 permission denied error가 나타난다면 아래의 명령어를 추가로 실행해주어야합니다.
-    ```
+    ```bash
     # device: cpu or gpu
-    chmode +x etc/multi_bleu.perl
+    chmod +x etc/multi_bleu.perl
     python3 src/main.py -d {device} -m multi_bleu_perl -n {model_name}
     ```
 <br><br>
@@ -47,7 +47,7 @@ Transformer 기반 기계 번역 모델에 대한 설명은 [Transformer를 이�
 ## 사용 데이터
 여기서 나와있는 data_sample은 전체 데이터가 아닌 일부 sample 데이터입니다. 전체 데이터는 아래 링크에서 받을 수 있습니다.
 만약 코드가 돌아가는지 확인하기 위해서는 아래 명령어를 먼저 실행해서 데이터 폴더 이름을 변경해야합니다.
-```
+```bash
 mv data_sample data
 ```
 * ### WMT'14 (En-De)

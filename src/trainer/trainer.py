@@ -8,14 +8,14 @@ import torch.nn as nn
 import torch.optim as optim
 from torch import distributed as dist
 
-from tools.tokenizers import WordTokenizer
+from tools.tokenizers import *
 from tools import TrainingLogger, Evaluator, EarlyStopper
-from trainer.build import get_model, get_data_loader
+from trainer.build import get_model, get_data_loader, get_tokenizers
 from utils import RANK, LOGGER, colorstr, init_seeds
 from utils.filesys_utils import *
 from utils.training_utils import *
-from utils.data_utils import get_tatoeba
-from utils.func_utils import visualize_attn, print_samples, make_inference_data
+# from utils.data_utils import get_tatoeba
+# from utils.func_utils import visualize_attn, print_samples, make_inference_data
 
 
 
@@ -52,7 +52,7 @@ class Trainer:
 
         # init tokenizer, model, dataset, dataloader, etc.
         self.modes = ['train', 'validation'] if self.is_training_mode else ['train', 'validation', 'validation']
-        self.tokenizers = self._init_tokenizer(self.config)
+        self.tokenizers = get_tokenizers(self.config)
         self.dataloaders = get_data_loader(self.config, self.tokenizers, self.modes, self.is_ddp)
         self.encoder, self.decoder = self._init_model(self.config, self.tokenizers, self.mode)
         self.training_logger = TrainingLogger(self.config, self.is_training_mode)
@@ -71,20 +71,6 @@ class Trainer:
         if self.is_training_mode:
             self.enc_optimizer = optim.Adam(self.encoder.parameters(), lr=self.config.lr)
             self.dec_optimizer = optim.Adam(self.decoder.parameters(), lr=self.config.lr)
-
-
-    def _init_tokenizer(self, config):
-        if config.tatoeba_train:
-            trainset, _ = get_tatoeba(config)
-            src_tokenizer = WordTokenizer(config, trainset, src=True)
-            trg_tokenizer = WordTokenizer(config, trainset, src=False)
-            tokenizers = [src_tokenizer, trg_tokenizer]
-        else:
-            # NOTE: You need train data to build custom word tokenizer
-            trainset_path = config.CUSTOM.train_data_path
-            LOGGER.info(colorstr('red', 'You need train data to build custom word tokenizer..'))
-            raise NotImplementedError
-        return tokenizers
     
 
     def _init_model(self, config, tokenizers, mode):

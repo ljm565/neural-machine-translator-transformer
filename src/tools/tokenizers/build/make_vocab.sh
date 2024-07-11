@@ -1,9 +1,13 @@
 #!/bin/sh
 
 ## setup
-dpath=../../data/iwslt14-en-de/raw
-tpath=../../data/iwslt14-en-de/tokenizer
-vocab_size=10000
+dpath=${1}
+tpath=${2}
+vocab_size=${3}
+
+echo "Data path: $dpath"
+echo "Tokenizers path: $tpath"
+echo "Vocab size: $vocab_size"
 
 ## cat both en and de data
 cat $dpath/train.en $dpath/val.en $dpath/test.en $dpath/train.de $dpath/val.de $dpath/test.de | shuf > $dpath/train.all.both
@@ -11,4 +15,4 @@ cat $dpath/train.en $dpath/val.en $dpath/test.en $dpath/train.de $dpath/val.de $
 ## train the vocab
 mkdir $tpath
 mkdir $tpath/vocab_$vocab_size
-python3 vocab_trainer.py --data $dpath/train.all.both --size $vocab_size --output $tpath/vocab_$vocab_size
+python3 ${4} --data $dpath/train.all.both --size $vocab_size --output $tpath/vocab_$vocab_size
