@@ -6,8 +6,10 @@ import torch
 from torch.utils.data import DataLoader, distributed
 
 from models import Transformer
+from tools.tokenizers import IWSLTTokenizer_EnDe, WMTTokenizer_EnDe
 from utils import LOGGER, RANK, colorstr
-# from utils.data_utils import DLoader, CustomDLoader, seed_worker, get_tatoeba
+from utils.filesys_utils import read_dataset
+from utils.data_utils import DLoader_iwslt, DLoader_wmt, preprocess_data, seed_worker
 
 PIN_MEMORY = str(os.getenv('PIN_MEMORY', True)).lower() == 'true'  # global pin_memory for dataloaders
 
@@ -26,32 +28,53 @@ def get_tokenizers(config):
             data_path = os.path.join(main_dir, config.iwslt14.path, 'iwslt14-en-de/raw')
             tokenizer_path = os.path.join(main_dir, config.iwslt14.path, 'iwslt14-en-de/tokenizer')
             
-            runs = subprocess.run([vocab_sh, data_path, tokenizer_path, vocab_size, vocab_py], capture_output=True, text=True)
-            
             LOGGER.info((colorstr("Making vocab file for custom tokenizer..")))
+            runs = subprocess.run([vocab_sh, data_path, tokenizer_path, vocab_size, vocab_py], capture_output=True, text=True)
             LOGGER.info((colorstr(runs.stdout)))
             LOGGER.error(colorstr('red', runs.stderr))
+
+        config.tokenizer_path = os.path.join(data_path, f'tokenizer/vocab_{vocab_size}/vocab.txt')
+        tokenizer = IWSLTTokenizer_EnDe(config)
+            
+    elif config.training_data.lower() == 'wmt14':
+        vocab_size = str(config.vocab_size)
+        data_path = os.path.join(config.iwslt14.path, 'wmt14-en-de') 
+        
+        if not os.path.isdir(os.path.join(data_path, f'tokenizer/vocab_{vocab_size}')):
+            main_dir = '/'.join(os.path.realpath(__file__).split('/')[:-3])
+            vocab_sh = os.path.join(main_dir, 'src/tools/tokenizers/build/make_vocab.sh')
+            vocab_py = os.path.join(main_dir, 'src/tools/tokenizers/build/vocab_trainer.py')
+            
+            data_path = os.path.join(main_dir, config.iwslt14.path, 'wmt14-en-de/raw')
+            tokenizer_path = os.path.join(main_dir, config.iwslt14.path, 'wmt1414-en-de/tokenizer')
+
+            LOGGER.info((colorstr("Making vocab file for custom tokenizer..")))    
+            runs = subprocess.run([vocab_sh, data_path, tokenizer_path, vocab_size, vocab_py], capture_output=True, text=True)
+            LOGGER.info((colorstr(runs.stdout)))
+            LOGGER.error(colorstr('red', runs.stderr))
+
+        config.tokenizer_path = os.path.join(data_path, f'tokenizer/vocab_{vocab_size}/vocab.txt')
+        tokenizer = WMTTokenizer_EnDe(config)
             
     else:
-        # NOTE: You need train data to build custom word tokenizer
-        trainset_path = config.CUSTOM.train_data_path
-        LOGGER.info(colorstr('red', 'You need train data to build custom word tokenizer..'))
+        LOGGER.warning(colorstr('yellow', 'You must implement your custom tokenizer loading codes..'))
         raise NotImplementedError
-    return tokenizers
+    
+    return tokenizer
 
 
-def get_model(config, tokenizers, device):
-    src_tokenizer, trg_tokenizer = tokenizers
-    encoder = Encoder(config, src_tokenizer, device).to(device)
-    decoder = Decoder(config, trg_tokenizer).to(device)
-    return encoder, decoder
+def get_model(config, tokenizer, device):
+    model = Transformer(config, tokenizer, device).to(device)
+    return model
 
 
-def build_dataset(config, tokenizers, modes):
-    if config.tatoeba_train:
-        trainset, testset = get_tatoeba(config)
-        tmp_dsets = {'train': trainset, 'validation': testset}
-        dataset_dict = {mode: DLoader(config, tmp_dsets[mode], tokenizers) for mode in modes}
+def build_dataset(config, tokenizer, modes):
+    if config.training_data.lower() in ['iwslt14', 'wmt14']:
+        modes 
+        dataset_paths = preprocess_data(config)
+        dloader = DLoader_iwslt if config.training_data.lower() == 'iwslt14' else DLoader_wmt
+        tmp_dsets = {s: dloader(read_dataset(p), tokenizer, config) for s, p in dataset_paths.items()}
+        dataset_dict = {mode: tmp_dsets[mode] for mode in modes}
     else:
         LOGGER.warning(colorstr('yellow', 'You have to implement data pre-processing code..'))
         # dataset_dict = {mode: CustomDLoader(config.CUSTOM.get(f'{mode}_data_path')) for mode in modes}
@@ -77,8 +100,8 @@ def build_dataloader(dataset, batch, workers, shuffle=True, is_ddp=False):
                               generator=generator)
 
 
-def get_data_loader(config, tokenizers, modes, is_ddp=False):
-    datasets = build_dataset(config, tokenizers, modes)
+def get_data_loader(config, tokenizer, modes, is_ddp=False):
+    datasets = build_dataset(config, tokenizer, modes)
     dataloaders = {m: build_dataloader(datasets[m], 
                                        config.batch_size, 
                                        config.workers, 

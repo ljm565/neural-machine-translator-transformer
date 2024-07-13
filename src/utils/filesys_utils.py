@@ -17,6 +17,18 @@ def write_dataset(path, obj):
         pickle.dump(obj, f)
 
 
+def txt_read(path):
+    with open(path, 'r') as f:
+        lines = f.readlines()
+    lines = [l.strip() for l in lines]
+    return lines
+
+
+def txt_write(path, data):
+    with open(path, 'w') as f:
+        f.writelines(data)
+        
+
 def make_project_dir(config, is_rank_zero=False):
     """
     Make project folder.

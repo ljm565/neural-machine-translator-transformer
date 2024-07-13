@@ -17,7 +17,7 @@ class Encoder(nn.Module):
         self.enc_num_layers = config.enc_num_layers
         self.hidden_dim = config.hidden_dim
         self.ffn_dim = config.ffn_dim
-        self.num_head = config.num_head
+        self.num_head = config.num_heads
         self.max_len = config.max_len
         self.bias = bool(config.bias)
         self.dropout = config.dropout
@@ -54,7 +54,7 @@ class Decoder(nn.Module):
         self.dec_num_layers = config.dec_num_layers
         self.hidden_dim = config.hidden_dim
         self.ffn_dim = config.ffn_dim
-        self.num_head = config.num_head
+        self.num_head = config.num_heads
         self.max_len = config.max_len
         self.bias = bool(config.bias)
         self.dropout = config.dropout
@@ -83,22 +83,22 @@ class Decoder(nn.Module):
 
 # transformer
 class Transformer(nn.Module):
-    def __init__(self, config, tokenizers, device):
+    def __init__(self, config, tokenizer, device):
         super(Transformer, self).__init__()
         self.config = config
-        self.src_tokenizer, self.trg_tokenizer = tokenizers
+        self.tokenizer = tokenizer
         self.device = device
         
         self.hidden_dim = self.config.hidden_dim
 
-        self.encoder = Encoder(self.config, self.src_tokenizer, self.device)
-        self.decoder = Decoder(self.config, self.trg_tokenizer, self.device)
-        self.fc = nn.Linear(self.hidden_dim, self.trg_tokenizer.vocab_size)
+        self.encoder = Encoder(self.config, self.tokenizer, self.device)
+        self.decoder = Decoder(self.config, self.tokenizer, self.device)
+        self.fc = nn.Linear(self.hidden_dim, self.tokenizer.vocab_size)
 
 
     def make_mask(self, src, trg):
-        enc_mask = torch.where(src==self.src_tokenizer.pad_token_id, 0, 1).unsqueeze(1).unsqueeze(2)
-        dec_causal_mask = torch.tril(torch.ones(trg.size(1), trg.size(1))).unsqueeze(0).unsqueeze(1).to(self.device) + torch.where(trg==self.trg_tokenizer.pad_token_id, 0, 1).unsqueeze(1).unsqueeze(2)
+        enc_mask = torch.where(src==self.tokenizer.pad_token_id, 0, 1).unsqueeze(1).unsqueeze(2)
+        dec_causal_mask = torch.tril(torch.ones(trg.size(1), trg.size(1))).unsqueeze(0).unsqueeze(1).to(self.device) + torch.where(trg==self.tokenizer.pad_token_id, 0, 1).unsqueeze(1).unsqueeze(2)
         dec_causal_mask = torch.where(dec_causal_mask < 2, 0, 1)
         enc_dec_mask = enc_mask
         return enc_mask, dec_causal_mask, enc_dec_mask

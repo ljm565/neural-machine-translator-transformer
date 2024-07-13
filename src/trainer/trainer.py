@@ -51,12 +51,12 @@ class Trainer:
         self.metrics = self.config.metrics
 
         # init tokenizer, model, dataset, dataloader, etc.
-        self.modes = ['train', 'validation'] if self.is_training_mode else ['train', 'validation', 'validation']
-        self.tokenizers = get_tokenizers(self.config)
-        self.dataloaders = get_data_loader(self.config, self.tokenizers, self.modes, self.is_ddp)
-        self.encoder, self.decoder = self._init_model(self.config, self.tokenizers, self.mode)
+        self.modes = ['train', 'validation'] if self.is_training_mode else ['train', 'validation', 'test']
+        self.tokenizer = get_tokenizers(self.config)
+        self.dataloaders = get_data_loader(self.config, self.tokenizer, self.modes, self.is_ddp)
+        self.model = self._init_model(self.config, self.tokenizer, self.mode)
         self.training_logger = TrainingLogger(self.config, self.is_training_mode)
-        self.evaluator = Evaluator(self.tokenizers[1])
+        self.evaluator = Evaluator(self.tokenizer)
         self.stopper, self.stop = EarlyStopper(self.config.patience), False
 
         # save the yaml config
@@ -67,42 +67,39 @@ class Trainer:
         
         # init criterion, optimizer, etc.
         self.epochs = self.config.epochs
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = nn.CrossEntropyLoss(ignore_index=self.tokenizer.pad_token_id)
         if self.is_training_mode:
-            self.enc_optimizer = optim.Adam(self.encoder.parameters(), lr=self.config.lr)
-            self.dec_optimizer = optim.Adam(self.decoder.parameters(), lr=self.config.lr)
+            self.optimizer = optim.Adam(self.model.parameters(), lr=self.config.lr)
     
 
-    def _init_model(self, config, tokenizers, mode):
+    def _init_model(self, config, tokenizer, mode):
         def _resume_model(resume_path, device, is_rank_zero):
             try:
                 checkpoints = torch.load(resume_path, map_location=device)
             except RuntimeError:
                 LOGGER.warning(colorstr('yellow', 'cannot be loaded to MPS, loaded to CPU'))
                 checkpoints = torch.load(resume_path, map_location=torch.device('cpu'))
-            encoder.load_state_dict(checkpoints['model']['encoder'])
-            decoder.load_state_dict(checkpoints['model']['decoder'])
+            model.load_state_dict(checkpoints['model'])
             del checkpoints
             torch.cuda.empty_cache()
             gc.collect()
             if is_rank_zero:
                 LOGGER.info(f'Resumed model: {colorstr(resume_path)}')
-            return encoder, decoder
+            return model
 
         # init models
         do_resume = mode == 'resume' or (mode == 'validation' and self.resume_path)
-        encoder, decoder = get_model(config, tokenizers, self.device)
+        model = get_model(config, tokenizer, self.device)
 
         # resume model
         if do_resume:
-            encoder, decoder = _resume_model(self.resume_path, self.device, config.is_rank_zero)
+            model = _resume_model(self.resume_path, self.device, config.is_rank_zero)
 
         # init ddp
         if self.is_ddp:
-            torch.nn.parallel.DistributedDataParallel(encoder, device_ids=[self.device])
-            torch.nn.parallel.DistributedDataParallel(decoder, device_ids=[self.device])
+            torch.nn.parallel.DistributedDataParallel(model, device_ids=[self.device])
         
-        return encoder, decoder
+        return model
 
 
     def do_train(self):
@@ -164,8 +161,7 @@ class Trainer:
             phase: str,
             epoch: int
         ):
-        self.encoder.train()
-        self.decoder.train()
+        self.model.train()
         train_loader = self.dataloaders[phase]
         nb = len(train_loader)
 
@@ -177,37 +173,16 @@ class Trainer:
             logging_header = ['CE Loss']
             pbar = init_progress_bar(train_loader, self.is_rank_zero, logging_header, nb)
 
-        for i, (src, trg, mask) in pbar:
+        for i, (src, trg) in pbar:
             self.train_cur_step += 1
             batch_size = src.size(0)
             src, trg = src.to(self.device), trg.to(self.device)
-            if self.config.use_attention:
-                mask = mask.to(self.device)
             
-            teacher_forcing = True if random.random() < self.config.teacher_forcing_ratio else False
-            self.enc_optimizer.zero_grad()
-            self.dec_optimizer.zero_grad()
-
-            enc_output, hidden = self.encoder(src)
-            
-            # iteration one by one due to Badanau attention mechanism
-            decoder_all_output = []
-            for j in range(self.max_len):
-                if teacher_forcing or j == 0:
-                    trg_word = trg[:, j].unsqueeze(1)
-                    dec_output, hidden, _ = self.decoder(trg_word, hidden, enc_output, mask)
-                    decoder_all_output.append(dec_output)
-                else:
-                    trg_word = torch.argmax(dec_output, dim=-1)
-                    dec_output, hidden, _ = self.decoder(trg_word.detach(), hidden, enc_output, mask)
-                    decoder_all_output.append(dec_output)
-
-            decoder_all_output = torch.cat(decoder_all_output, dim=1)
-            loss = self.criterion(decoder_all_output[:, :-1, :].reshape(-1, decoder_all_output.size(-1)), trg[:, 1:].reshape(-1))
-
+            self.optimizer.zero_grad()
+            _, output = self.model(src, trg)
+            loss = self.criterion(output[:, :-1, :].reshape(-1, output.size(-1)), trg[:, 1:].reshape(-1))
             loss.backward()
-            self.enc_optimizer.step()
-            self.dec_optimizer.step()
+            self.optimizer.step()
 
             if self.is_rank_zero:
                 self.training_logger.update(

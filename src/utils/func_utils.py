@@ -8,57 +8,6 @@ from nltk.translate.nist_score import corpus_nist
 """
 common utils
 """
-def load_dataset(path):
-    with open(path, 'rb') as f:
-        data = pickle.load(f)
-    return data
-
-
-def txt_read(path):
-    with open(path, 'r') as f:
-        lines = f.readlines()
-    lines = [l.strip() for l in lines]
-    return lines
-
-
-def txt_write(path, data):
-    with open(path, 'w') as f:
-        f.writelines(data)
-
-
-def save_data(base_path, data_type):
-    if data_type == 'iwslt14-ende':
-        if not (os.path.isfile(base_path+'data/iwslt14-en-de/processed/en-de.train') and os.path.isfile(base_path+'data/iwslt14-en-de/processed/en-de.val') and os.path.isfile(base_path+'data/iwslt14-en-de/processed/en-de.test')):
-            print('Processing the IWSLT14 raw en-de data')
-            for split in ['train', 'val', 'test']:
-                en_raw_path, de_raw_path = base_path+'data/iwslt14-en-de/raw/'+split+'.en', base_path+'data/iwslt14-en-de/raw/'+split+'.de'
-                en, de = txt_read(en_raw_path), txt_read(de_raw_path)
-                dataset = [(e, d) for e, d in zip(en, de)]
-                with open(base_path+'data/iwslt14-en-de/processed/en-de.'+split, 'wb') as f:
-                    pickle.dump(dataset, f)
-
-    elif data_type == 'wmt14-ende':
-        if not (os.path.isfile(base_path+'data/wmt14-en-de/processed/en-de.train') and os.path.isfile(base_path+'data/wmt14-en-de/processed/en-de.val') and os.path.isfile(base_path+'data/wmt14-en-de/processed/en-de.test')):
-            print('Processing the WMT14 raw en-de data')
-            for split in ['train', 'val', 'test']:
-                en_raw_path, de_raw_path = base_path+'data/wmt14-en-de/raw/'+split+'.en', base_path+'data/wmt14-en-de/raw/'+split+'.de'
-                en, de = txt_read(en_raw_path), txt_read(de_raw_path)
-                dataset = [(e, d) for e, d in zip(en, de)]
-                with open(base_path+'data/wmt14-en-de/processed/en-de.'+split, 'wb') as f:
-                    pickle.dump(dataset, f)
-                
-
-def make_dataset_path(base_path, data_type):
-    dataset_path = {}
-    if data_type == 'iwslt14-ende':
-        for split in ['train', 'val', 'test']:
-            dataset_path[split] = base_path+'data/iwslt14-en-de/processed/en-de.'+split
-    elif data_type == 'wmt14-ende':
-        for split in ['train', 'val', 'test']:
-            dataset_path[split] = base_path+'data/wmt14-en-de/processed/en-de.'+split
-    return dataset_path
-
-
 def save_checkpoint(file, model, optimizer):
     state = {'model': model.state_dict(), 'optimizer': optimizer.state_dict()}
     torch.save(state, file)
