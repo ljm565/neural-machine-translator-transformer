@@ -57,7 +57,7 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('-r', '--resume_model_dir', type=str, required=True)
     parser.add_argument('-l', '--load_model_type', type=str, default='metric', required=False, choices=['loss', 'last', 'metric'])
-    parser.add_argument('-d', '--dataset_type', type=str, default='validation', required=False, choices=['train', 'validation', 'test'])
+    parser.add_argument('-d', '--dataset_type', type=str, default='test', required=False, choices=['train', 'validation', 'test'])
     args = parser.parse_args()
 
     main(args)

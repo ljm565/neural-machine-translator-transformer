@@ -18,25 +18,16 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/run/validation.py",
-            "args": ["-r", "outputs/lstm_w_attention/IMDb", "-l", "metric", "--dataset_type", "validation"],
+            "args": ["-r", "outputs/transformer/iwslt14-ende", "-l", "metric", "--dataset_type", "test"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
-            "name": "attention visualization",
+            "name": "calculate multi_bleu.perl",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/run/vis_attention.py",
-            "args": ["-r", "outputs/lstm_w_attention/IMDb", "-l", "metric", "--dataset_type", "validation"],
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "print several prediction results",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/run/sentiment_prediction.py",
-            "args": ["-r", "outputs/lstm_w_attention/IMDb", "-l", "metric", "--dataset_type", "validation"],
+            "program": "${workspaceFolder}/src/run/multi_bleu_perl.py",
+            "args": ["-r", "outputs/transformer/iwslt14-ende", "-l", "metric", "--dataset_type", "test"],
             "console": "integratedTerminal",
             "justMyCode": true
         }

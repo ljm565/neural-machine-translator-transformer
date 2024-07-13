@@ -3,6 +3,7 @@ import torch.nn as nn
 
 from models.modules import EncoderLayer, DecoderLayer
 from models.embeddings import TokenEmbeddings, PositionalEmbedding
+from utils import LOGGER, colorstr
 
 
 
@@ -110,3 +111,20 @@ class Transformer(nn.Module):
         all_cross_attn_wts, output = self.decoder(trg, enc_output, dec_causal_mask, enc_dec_mask)
         output = self.fc(output)
         return all_cross_attn_wts, output
+    
+
+    def batch_inference(self, src, start_tokens, max_len, tokenizer, loss_func=None, target=None):
+        loss = None
+        if loss_func:
+            assert target != None, LOGGER(colorstr('red', 'Target must be required if you want to return loss values..'))
+            _, output = self.forward(src, target)
+            loss = loss_func(output[:, :-1, :].reshape(-1, output.size(-1)), target[:, 1:].reshape(-1))
+        
+        trg = start_tokens.unsqueeze(1)
+        for i in range(max_len):
+            _, output = self.forward(src, trg)
+            trg = torch.cat((trg, torch.argmax(output[:, -1], dim=-1).unsqueeze(1)), dim=1)
+
+        predictions = [tokenizer.decode(pred[1:].detach().cpu().tolist()) for pred in trg]
+
+        return predictions, loss

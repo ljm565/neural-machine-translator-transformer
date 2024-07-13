@@ -31,16 +31,16 @@ def main(args):
     env_setup()
 
     # validation 
-    inference(args, config)
+    validation(args, config)
 
     
-def inference(args, config):
+def validation(args, config):
     if config.device == 'mps':
         LOGGER.warning(colorstr('yellow', 'cpu is automatically selected because mps leads inaccurate validation.'))
         device = torch.device('cpu')
     else:
         device = torch.device('cpu') if config.device == 'cpu' else torch.device(f'cuda:{config.device[0]}')
-        
+
     trainer = Trainer(
         config, 
         'validation', 
@@ -48,23 +48,18 @@ def inference(args, config):
         resume_path=choose_proper_resume_model(args.resume_model_dir, args.load_model_type) if args.resume_model_dir else None
     )
 
-    LOGGER.info(colorstr('inference starting...\n'))
-    while 1:
-        query = input('English: ')
-        if query == 'exit':
-            break
-        output = trainer.inference(query)
-        print('French: ', output, '\n')
+    trainer.multi_bleu_perl(args.dataset_type)
 
 
 
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('-r', '--resume_model_dir', type=str, required=False)
-    parser.add_argument('-l', '--load_model_type', type=str, default='metric', required=False, choices=['metric', 'loss', 'last'])
+    parser.add_argument('-r', '--resume_model_dir', type=str, required=True)
+    parser.add_argument('-l', '--load_model_type', type=str, default='metric', required=False, choices=['loss', 'last', 'metric'])
+    parser.add_argument('-d', '--dataset_type', type=str, default='test', required=False, choices=['train', 'validation', 'test'])
     args = parser.parse_args()
-    
+
     main(args)
 
     

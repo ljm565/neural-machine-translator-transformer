@@ -1,7 +1,7 @@
 import gc
-import sys
 import time
 import random
+from tqdm import tqdm
 
 import torch
 import torch.nn as nn
@@ -12,10 +12,9 @@ from tools.tokenizers import *
 from tools import TrainingLogger, Evaluator, EarlyStopper
 from trainer.build import get_model, get_data_loader, get_tokenizers
 from utils import RANK, LOGGER, colorstr, init_seeds
+from utils.func_utils import *
 from utils.filesys_utils import *
 from utils.training_utils import *
-# from utils.data_utils import get_tatoeba
-# from utils.func_utils import visualize_attn, print_samples, make_inference_data
 
 
 
@@ -208,9 +207,7 @@ class Trainer:
             is_training_now=True
         ):
         def _init_log_data_for_vis():
-            data4vis = {'src': [], 'trg': [], 'pred': []}
-            if self.config.use_attention:
-                data4vis.update({'score': []})
+            data4vis = {'trg': [], 'pred': []}
             return data4vis
 
         def _append_data_for_vis(**kwargs):
@@ -230,27 +227,20 @@ class Trainer:
                 logging_header = ['CE Loss'] + self.config.metrics
                 pbar = init_progress_bar(val_loader, self.is_rank_zero, logging_header, nb)
 
-                self.encoder.eval()
-                self.decoder.eval()
+                self.model.eval()
 
-                for i, (src, trg, mask) in pbar:
+                for i, (src, trg) in pbar:
                     batch_size = src.size(0)
                     src, trg = src.to(self.device), trg.to(self.device)
-                    if self.config.use_attention:
-                        mask = mask.to(self.device)
 
-                    sources = [self.tokenizers[0].decode(s.tolist()) for s in src]
-                    targets = [self.tokenizers[1].decode(t.tolist()) for t in trg]
-                    targets4metrics = [self.tokenizers[1].decode(t[1:].tolist()) for t in trg]
-                    
-                    enc_output, hidden = self.encoder(src)
-                    predictions, score, loss = self.decoder.batch_inference(
+                    sources = [self.tokenizer.decode(s.tolist()) for s in src]
+                    targets4metrics = [self.tokenizer.decode(t[1:].tolist()) for t in trg]
+
+                    predictions, loss = self.model.batch_inference(
+                        src=src,
                         start_tokens=trg[:, 0], 
-                        enc_output=enc_output,
-                        hidden=hidden,
-                        mask=mask,
                         max_len=self.max_len,
-                        tokenizer=self.tokenizers[1],
+                        tokenizer=self.tokenizer,
                         loss_func=self.criterion,
                         target=trg
                     )
@@ -271,23 +261,22 @@ class Trainer:
                     msg = tuple([f'{epoch+1}/{self.epochs}'] + loss_log + [metric_results[k] for k in self.metrics])
                     pbar.set_description(('%15s' + '%15.4g' * (len(loss_log) + len(self.metrics))) % msg)
 
-                    ids = random.sample(range(batch_size), self.config.prediction_print_n)
+                    ids = random.sample(range(batch_size), min(self.config.prediction_print_n, batch_size))
                     for id in ids:
                         print_samples(' '.join(sources[id].split()[1:]), targets4metrics[id], predictions[id])
 
                     if not is_training_now:
                         _append_data_for_vis(
-                            **{'src': sources,
-                               'trg': targets,
+                            **{'trg': targets4metrics,
                                'pred': predictions}
                         )
-                        if self.config.use_attention:
-                            _append_data_for_vis(**{'score': score.detach().cpu()})
+
+                    break
 
                 # upadate logs and save model
                 self.training_logger.update_phase_end(phase, printing=True)
                 if is_training_now:
-                    self.training_logger.save_model(self.wdir, {'encoder': self.encoder, 'decoder': self.decoder})
+                    self.training_logger.save_model(self.wdir, self.model)
                     self.training_logger.save_logs(self.save_dir)
 
                     high_fitness = self.training_logger.model_manager.best_higher
@@ -314,44 +303,10 @@ class Trainer:
         return metric_results
     
 
-    def vis_attention(self, phase, result_num):
-        if result_num > len(self.dataloaders[phase].dataset):
-            LOGGER.info(colorstr('red', 'The number of results that you want to see are larger than total test set'))
-            sys.exit()
-
-        # validation
+    def multi_bleu_perl(self, phase):
         self.epoch_validate(phase, 0, False)
-        if self.config.use_attention:
-            vis_save_dir = os.path.join(self.config.save_dir, 'vis_outputs') 
-            os.makedirs(vis_save_dir, exist_ok=True)
-            visualize_attn(self.data4vis, self.tokenizers, result_num, vis_save_dir)
-        else:
-            LOGGER.warning(colorstr('yellow', 'Your model does not have attention module..'))
 
-
-    def inference(self, query):
-        query, mask = make_inference_data(query, self.tokenizers[0], self.max_len)
-
-        with torch.no_grad():
-            query = query.to(self.device)
-            if self.config.use_attention:
-                mask = mask.to(self.device)
-            self.encoder.eval()
-            self.decoder.eval()
-
-            enc_output, hidden = self.encoder(query)
-            decoder_all_output, decoder_bos = [], torch.LongTensor([[self.tokenizers[1].bos_token_id]]).to(self.device)
-            for j in range(self.max_len):
-                if j == 0:
-                    dec_output, hidden, _ = self.decoder(decoder_bos, hidden, enc_output, mask)
-                    decoder_all_output.append(dec_output)
-                else:
-                    trg_word = torch.argmax(dec_output, dim=-1)
-                    dec_output, hidden, _ = self.decoder(trg_word.detach(), hidden, enc_output, mask)
-                    decoder_all_output.append(dec_output)
-            decoder_all_output = torch.cat(decoder_all_output, dim=1)
-            output = self.tokenizers[1].decode(torch.argmax(decoder_all_output.detach().cpu(), dim=-1)[0].tolist())
-        
-        if output.split()[-1] == self.tokenizers[1].eos_token:
-            return ' '.join(output.split()[:-1])
-        return output  
+        # calculate scores
+        all_ref = self.data4vis['trg']
+        all_pred = self.data4vis['pred']
+        cal_multi_bleu_perl(all_ref, all_pred)

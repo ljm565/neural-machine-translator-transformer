@@ -41,6 +41,7 @@ batch_size: 128
 epochs: 100
 lr: 1e-4
 patience: 5                           # Early stopping epochs.
+prediction_print_n: 10
 
 # logging config
 common: ['train_loss', 'validation_loss']

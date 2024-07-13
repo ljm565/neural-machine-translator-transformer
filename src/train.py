@@ -350,44 +350,6 @@ class Trainer_wmt_ende:
         return epoch_loss
 
 
-    def inference(self, phase, result_num=3):
-        self.model.eval()
-        all_trg, all_output = [], []
-
-        with torch.no_grad():
-            for src, trg in tqdm(self.dataloaders[phase], desc=phase+' inferencing..'):
-                src, trg = src.to(self.device), trg.to(self.device)
-                all_trg.append(trg.detach().cpu())
-            
-                decoder_all_output = []
-                for j in range(self.max_len):
-                    if j == 0:
-                        trg = trg[:, j].unsqueeze(1)
-                        _, output = self.model(src, trg)
-                        trg = torch.cat((trg, torch.argmax(output[:, -1], dim=-1).unsqueeze(1)), dim=1)
-                    else:
-                        _, output = self.model(src, trg)
-                        trg = torch.cat((trg, torch.argmax(output[:, -1], dim=-1).unsqueeze(1)), dim=1)
-                    decoder_all_output.append(output[:, -1].unsqueeze(1).detach().cpu())
-                        
-                all_output.append(torch.argmax(torch.cat(decoder_all_output, dim=1), dim=-1))
-            
-        # calculate scores
-        all_ref, all_pred = tensor2list(all_trg, all_output, self.trg_tokenizer)
-        bleu2 = cal_scores(all_ref, all_pred, 'bleu', 2)
-        bleu4 = cal_scores(all_ref, all_pred, 'bleu', 4)
-        nist2 = cal_scores(all_ref, all_pred, 'nist', 2)
-        nist4 = cal_scores(all_ref, all_pred, 'nist', 4)
-        print('\nInference Score')
-        print('bleu2: {}, bleu4: {}, nist2: {}, nist4: {}'.format(bleu2, bleu4, nist2, nist4))
-
-        # print samples
-        ids = random.sample(list(range(len(all_pred))), result_num)
-        print_samples(all_ref, all_pred, ids, self.trg_tokenizer)
-
-        return bleu2, bleu4, nist2, nist4
-
-
     def multi_bleu_perl(self, phase):
         self.model.eval()
         all_trg, all_output = [], []
