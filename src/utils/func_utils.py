@@ -14,9 +14,9 @@ def print_samples(source, target, prediction):
 
 
 def cal_multi_bleu_perl(ref, pred):
-    r = [' '.join(s[0])+'\n' for s in ref]
-    p = [' '.join(s)+'\n' for s in pred]
-    
+    r = [s+'\n' for s in ref]
+    p = [s+'\n' for s in pred]
+
     txt_write('etc/ref.txt', r)
     txt_write('etc/pred.txt', p)
 
