@@ -37,24 +37,7 @@ def get_tokenizers(config):
         tokenizer = IWSLTTokenizer_EnDe(config)
             
     elif config.training_data.lower() == 'wmt14':
-        vocab_size = str(config.vocab_size)
-        data_path = os.path.join(config.iwslt14.path, 'wmt14-en-de') 
-        
-        if not os.path.isdir(os.path.join(data_path, f'tokenizer/vocab_{vocab_size}')):
-            main_dir = '/'.join(os.path.realpath(__file__).split('/')[:-3])
-            vocab_sh = os.path.join(main_dir, 'src/tools/tokenizers/build/make_vocab.sh')
-            vocab_py = os.path.join(main_dir, 'src/tools/tokenizers/build/vocab_trainer.py')
-            
-            data_path = os.path.join(main_dir, config.iwslt14.path, 'wmt14-en-de/raw')
-            tokenizer_path = os.path.join(main_dir, config.iwslt14.path, 'wmt1414-en-de/tokenizer')
-
-            LOGGER.info((colorstr("Making vocab file for custom tokenizer..")))    
-            runs = subprocess.run([vocab_sh, data_path, tokenizer_path, vocab_size, vocab_py], capture_output=True, text=True)
-            LOGGER.info((colorstr(runs.stdout)))
-            LOGGER.error(colorstr('red', runs.stderr))
-
-        config.tokenizer_path = os.path.join(data_path, f'tokenizer/vocab_{vocab_size}/vocab.txt')
-        tokenizer = WMTTokenizer_EnDe(config)
+        tokenizer = WMTTokenizer_EnDe()
             
     else:
         LOGGER.warning(colorstr('yellow', 'You must implement your custom tokenizer loading codes..'))
