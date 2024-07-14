@@ -127,7 +127,7 @@ The BLEU-4 scores were calculated using both NLTK and `multi_bleu.perl`.
     <img src="docs/figs/iwslt_nist.png" width="80%"><br><br>
 
 
-### Translated Samples and Attentions of Each Transformer Model
+### Translated Samples of Each Transformer Model
 * WMT'14 Trained Model
     ```
     # Sample 1
