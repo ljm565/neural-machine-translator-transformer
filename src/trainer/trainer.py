@@ -271,8 +271,6 @@ class Trainer:
                                'pred': predictions}
                         )
 
-                    break
-
                 # upadate logs and save model
                 self.training_logger.update_phase_end(phase, printing=True)
                 if is_training_now:
