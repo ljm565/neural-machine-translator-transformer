@@ -99,7 +99,6 @@ Please follow the steps below to train a Transformer translator model.
 4. ETC
    * [Evaluation](./docs/4_model_evaluation.md)
    * [Calculate BLEU via `perl` Script](./docs/5_cal_multi_bleu_perl.md)
-
 <br><br><br>
 
 
