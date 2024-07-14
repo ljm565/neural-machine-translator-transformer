@@ -38,11 +38,14 @@ CUSTOM:
 
 # train config
 batch_size: 128
-epochs: 100
-lr: 1e-4
+steps: 2000000
+warmup_steps: 1000
+lr0: 0.0001
+lrf: 0.001                            # last_lr = lr0 * lrf
+scheduler_type: 'cosine'              # ['linear', 'cosine']
 patience: 5                           # Early stopping epochs.
-prediction_print_n: 10
+prediction_print_n: 10                # Early stopping epochs. Epochs are automatically calculated according to current steps.
 
 # logging config
-common: ['train_loss', 'validation_loss']
+common: ['train_loss', 'validation_loss', 'lr']
 metrics: ['ppl', 'bleu2', 'bleu4', 'nist2', 'nist4']   # You can add more metrics after implements metric validation codes

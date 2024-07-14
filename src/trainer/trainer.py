@@ -1,7 +1,7 @@
 import gc
 import time
+import math
 import random
-from tqdm import tqdm
 
 import torch
 import torch.nn as nn
@@ -11,7 +11,7 @@ from torch import distributed as dist
 from tools.tokenizers import *
 from tools import TrainingLogger, Evaluator, EarlyStopper
 from trainer.build import get_model, get_data_loader, get_tokenizers
-from utils import RANK, LOGGER, colorstr, init_seeds
+from utils import RANK, LOGGER, SCHEDULER_MSG, SCHEDULER_TYPE, colorstr, init_seeds
 from utils.func_utils import *
 from utils.filesys_utils import *
 from utils.training_utils import *
@@ -37,6 +37,7 @@ class Trainer:
         self.is_ddp = is_ddp
         self.is_rank_zero = True if not self.is_ddp or (self.is_ddp and device == 0) else False
         self.config = config
+        self.scheduler_type = self.config.scheduler_type
         self.world_size = len(self.config.device) if self.is_ddp else 1
         self.dataloaders = {}
         if self.is_training_mode:
@@ -48,6 +49,9 @@ class Trainer:
         self.resume_path = resume_path
         self.max_len = self.config.max_len
         self.metrics = self.config.metrics
+
+        assert self.scheduler_type in SCHEDULER_TYPE, \
+            SCHEDULER_MSG + f' but got {colorstr(self.scheduler_type)}'
 
         # init tokenizer, model, dataset, dataloader, etc.
         self.modes = ['train', 'validation'] if self.is_training_mode else ['train', 'validation', 'test']
@@ -65,10 +69,23 @@ class Trainer:
             yaml_save(self.save_dir / 'args.yaml', self.config)  # save run args
         
         # init criterion, optimizer, etc.
-        self.epochs = self.config.epochs
+        self.steps = self.config.steps
+        self.lr0 = self.config.lr0
+        self.lrf = self.config.lrf
+        self.epochs = math.ceil(self.steps / len(self.dataloaders['train'])) if self.is_training_mode else 1
         self.criterion = nn.CrossEntropyLoss(ignore_index=self.tokenizer.pad_token_id)
         if self.is_training_mode:
-            self.optimizer = optim.Adam(self.model.parameters(), lr=self.config.lr)
+            self.optimizer = optim.Adam(self.model.parameters(), lr=self.config.lr0)
+
+            # init scheduler
+            self.warmup_steps_n = max(0, self.config.warmup_steps)
+            if self.scheduler_type == 'cosine':
+                self.lf = one_cycle(1, self.lrf, self.steps)
+            elif self.scheduler_type == 'linear':
+                self.lf = lambda x: (1 - (x - self.warmup_steps_n) / (self.steps - self.warmup_steps_n)) * (1.0 - self.lrf) + self.lrf
+            self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=self.lf)
+            if self.is_rank_zero:
+                draw_training_lr_curve(self.config, self.lf, self.steps, self.warmup_steps_n, self.is_ddp, self.world_size)
     
 
     def _init_model(self, config, tokenizer, mode):
@@ -169,10 +186,16 @@ class Trainer:
 
         # init progress bar
         if RANK in (-1, 0):
-            logging_header = ['CE Loss']
+            logging_header = ['CE Loss', 'lr']
             pbar = init_progress_bar(train_loader, self.is_rank_zero, logging_header, nb)
 
         for i, (src, trg) in pbar:
+            # Warmup
+            self.train_cur_step += 1
+            if self.train_cur_step <= self.warmup_steps_n:
+                self.optimizer.param_groups[0]['lr'] = lr_warmup(self.train_cur_step, self.warmup_steps_n, self.lr0, self.lf)
+            cur_lr = self.optimizer.param_groups[0]['lr']
+            
             self.train_cur_step += 1
             batch_size = src.size(0)
             src, trg = src.to(self.device), trg.to(self.device)
@@ -182,6 +205,7 @@ class Trainer:
             loss = self.criterion(output[:, :-1, :].reshape(-1, output.size(-1)), trg[:, 1:].reshape(-1))
             loss.backward()
             self.optimizer.step()
+            self.scheduler.step()
 
             if self.is_rank_zero:
                 self.training_logger.update(
@@ -189,9 +213,9 @@ class Trainer:
                     epoch + 1,
                     self.train_cur_step,
                     batch_size, 
-                    **{'train_loss': loss.item()},
+                    **{'train_loss': loss.item(), 'lr': cur_lr},
                 )
-                loss_log = [loss.item()]
+                loss_log = [loss.item(), cur_lr]
                 msg = tuple([f'{epoch + 1}/{self.epochs}'] + loss_log)
                 pbar.set_description(('%15s' * 1 + '%15.4g' * len(loss_log)) % msg)
             
