@@ -120,20 +120,20 @@ mv data_sample data
     BLEU-4 score는 각각 NLTk, multi_bleu.perl을 사용하여 계산한 결과입니다.
     
     * WMT'14 (En-De) Validation Set BLEU History<br>
-        <img src="docs/figs/wmt_bleu.png" width="80%"><br>
+        <img src="docs/wmt_bleu.png" width="80%"><br>
         * Test set BLEU-4: 0.2803 (NLTK)
         * Test set BLEU-4: 0.2803 (multi_bleu.perl)<br><br>
 
     * WMT'14 (En-De) Validation Set NIST History<br>
-        <img src="docs/figs/wmt_nist.png" width="80%"><br><br>
+        <img src="docs/wmt_nist.png" width="80%"><br><br>
 
     * IWSLT'14 (En-De) Validation Set BLEU History<br>
-        <img src="docs/figs/iwslt_bleu.png" width="80%"><br>
+        <img src="docs/iwslt_bleu.png" width="80%"><br>
         * Test set BLEU-4: 0.2579 (NLTK)
         * Test set BLEU-4: 0.2580 (multi_bleu.perl)<br><br>
 
     * IWSLT'14 (En-De) Validation Set NIST History<br>
-        <img src="docs/figs/iwslt_nist.png" width="80%"><br><br>
+        <img src="docs/iwslt_nist.png" width="80%"><br><br>
 
 
     * 기계 번역 결과 샘플<br>
