@@ -53,7 +53,6 @@ def get_model(config, tokenizer, device):
 
 def build_dataset(config, tokenizer, modes):
     if config.training_data.lower() in ['iwslt14', 'wmt14']:
-        modes 
         dataset_paths = preprocess_data(config)
         dloader = DLoader_iwslt if config.training_data.lower() == 'iwslt14' else DLoader_wmt
         tmp_dsets = {s: dloader(read_dataset(p), tokenizer, config) for s, p in dataset_paths.items()}
