@@ -3,7 +3,7 @@
 Custom 데이터를 이용하기 위해서는 아래 설명을 참고하시기 바랍니다.
 
 ### 1. IWSLT'14
-Tatoeba 데이터를 학습하고싶다면 아래처럼 `config/config.yaml`의 `training_data`을 `iwslt14` 설정하면 됩니다.
+IWSLT'14 데이터를 학습하고싶다면 아래처럼 `config/config.yaml`의 `training_data`을 `iwslt14` 설정하면 됩니다.
 ```yaml
 training_data: wmt14     # You can choose amoge [iwslt14, wmt14, custom].
 iwslt14:
@@ -20,7 +20,7 @@ CUSTOM:
 <br>
 
 ### 2. WMT'14
-Tatoeba 데이터를 학습하고싶다면 아래처럼 `config/config.yaml`의 `training_data`을 `wmt14` 설정하면 됩니다.
+WMT'14 데이터를 학습하고싶다면 아래처럼 `config/config.yaml`의 `training_data`을 `wmt14` 설정하면 됩니다.
 ```yaml
 training_data: wmt14   # You can choose amoge [iwslt14, wmt14, custom].
 iwslt14:
