@@ -31,6 +31,7 @@ mv data_sample data
 ```
 * WMT'14 (En-De): [Stanford WMT'14](https://nlp.stanford.edu/projects/nmt/)
 * IWSLT'14 (En-De): [fairseq](https://github.com/facebookresearch/fairseq)
+* Custom: You have to set train/validation/test data paths in the `config/config.yaml`. Also, you have to implement your custom tokenizer, data loading parts in the `src/trainer/build.py`.
 <br><br><br>
 
 

@@ -29,6 +29,7 @@ mv data_sample data
 ```
 * WMT'14 (En-De): [Stanford WMT'14](https://nlp.stanford.edu/projects/nmt/)
 * IWSLT'14 (En-De): [fairseq](https://github.com/facebookresearch/fairseq)
+* Custom: Train/validation/test 데이터 경로를 `config/config.yaml`에 설정해야하며, custom tokenizer, dataloader를 구성하여 `src/trainer/build.py`에 코드를 구현해야합니다.
 <br><br><br>
 
 ## Supported Devices
