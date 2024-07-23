@@ -52,7 +52,7 @@ lr0: 0.0001
 lrf: 0.001                            # last_lr = lr0 * lrf
 scheduler_type: 'cosine'              # ['linear', 'cosine']
 patience: 5                           # Early stopping epochs.
-prediction_print_n: 10                # Early stopping epochs. Epochs are automatically calculated according to current steps.
+prediction_print_n: 10                # Number of examples to show during inference.
 
 # logging config
 common: ['train_loss', 'validation_loss', 'lr']
