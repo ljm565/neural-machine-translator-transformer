@@ -39,7 +39,6 @@ class Trainer:
         self.config = config
         self.scheduler_type = self.config.scheduler_type
         self.world_size = len(self.config.device) if self.is_ddp else 1
-        self.dataloaders = {}
         if self.is_training_mode:
             self.save_dir = make_project_dir(self.config, self.is_rank_zero)
             self.wdir = self.save_dir / 'weights'
