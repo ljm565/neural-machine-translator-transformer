@@ -54,7 +54,7 @@ class Trainer:
 
         # init tokenizer, model, dataset, dataloader, etc.
         self.modes = ['train', 'validation'] if self.is_training_mode else ['train', 'validation', 'test']
-        self.tokenizer = get_tokenizers(self.config)
+        self.tokenizer = get_tokenizers(self.config, self.is_ddp)
         self.dataloaders = get_data_loader(self.config, self.tokenizer, self.modes, self.is_ddp)
         self.model = self._init_model(self.config, self.tokenizer, self.mode)
         self.training_logger = TrainingLogger(self.config, self.is_training_mode)

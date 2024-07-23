@@ -4,6 +4,7 @@ import subprocess
 
 import torch
 from torch.utils.data import DataLoader, distributed
+from torch import distributed as dist
 
 from models import Transformer
 from tools.tokenizers import IWSLTTokenizer_EnDe, WMTTokenizer_EnDe
@@ -15,12 +16,12 @@ PIN_MEMORY = str(os.getenv('PIN_MEMORY', True)).lower() == 'true'  # global pin_
 
 
 
-def get_tokenizers(config):
+def get_tokenizers(config, is_ddp=False):
     if config.training_data.lower() == 'iwslt14':
         vocab_size = str(config.vocab_size)
         data_path = os.path.join(config.iwslt14.path, 'iwslt14-en-de') 
         
-        if not os.path.isdir(os.path.join(data_path, f'tokenizer/vocab_{vocab_size}')):
+        if not os.path.isdir(os.path.join(data_path, f'tokenizer/vocab_{vocab_size}')) and config.is_rank_zero:
             main_dir = '/'.join(os.path.realpath(__file__).split('/')[:-3])
             vocab_sh = os.path.join(main_dir, 'src/tools/tokenizers/build/make_vocab.sh')
             vocab_py = os.path.join(main_dir, 'src/tools/tokenizers/build/vocab_trainer.py')
@@ -32,6 +33,9 @@ def get_tokenizers(config):
             runs = subprocess.run([vocab_sh, data_path, tokenizer_path, vocab_size, vocab_py], capture_output=True, text=True)
             LOGGER.info((colorstr(runs.stdout)))
             LOGGER.error(colorstr('red', runs.stderr))
+        
+        if is_ddp:
+            dist.barrier()      # wait all gpus to finish vocab file creation
 
         config.tokenizer_path = os.path.join(data_path, f'tokenizer/vocab_{vocab_size}/vocab.txt')
         tokenizer = IWSLTTokenizer_EnDe(config)
