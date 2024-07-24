@@ -26,11 +26,11 @@ def get_tokenizers(config, is_ddp=False):
             vocab_sh = os.path.join(main_dir, 'src/tools/tokenizers/build/make_vocab.sh')
             vocab_py = os.path.join(main_dir, 'src/tools/tokenizers/build/vocab_trainer.py')
             
-            data_path = os.path.join(main_dir, config.iwslt14.path, 'iwslt14-en-de/raw')
+            raw_data_path = os.path.join(main_dir, config.iwslt14.path, 'iwslt14-en-de/raw')
             tokenizer_path = os.path.join(main_dir, config.iwslt14.path, 'iwslt14-en-de/tokenizer')
             
             LOGGER.info((colorstr("Making vocab file for custom tokenizer..")))
-            runs = subprocess.run([vocab_sh, data_path, tokenizer_path, vocab_size, vocab_py], capture_output=True, text=True)
+            runs = subprocess.run([vocab_sh, raw_data_path, tokenizer_path, vocab_size, vocab_py], capture_output=True, text=True)
             LOGGER.info((colorstr(runs.stdout)))
             LOGGER.error(colorstr('red', runs.stderr))
         
