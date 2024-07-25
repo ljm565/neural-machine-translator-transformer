@@ -195,7 +195,6 @@ class Trainer:
                 self.optimizer.param_groups[0]['lr'] = lr_warmup(self.train_cur_step, self.warmup_steps_n, self.lr0, self.lf)
             cur_lr = self.optimizer.param_groups[0]['lr']
             
-            self.train_cur_step += 1
             batch_size = src.size(0)
             src, trg = src.to(self.device), trg.to(self.device)
             
