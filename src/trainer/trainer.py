@@ -112,7 +112,7 @@ class Trainer:
 
         # init ddp
         if self.is_ddp:
-            torch.nn.parallel.DistributedDataParallel(model, device_ids=[self.device])
+            model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[self.device])
         
         return model
 
@@ -257,8 +257,9 @@ class Trainer:
 
                     sources = [self.tokenizer.decode(s.tolist()) for s in src]
                     targets4metrics = [self.tokenizer.decode(t[1:].tolist()) for t in trg]
-
-                    predictions, loss = self.model.batch_inference(
+                    
+                    model = self.model.module if self.is_ddp else self.model
+                    predictions, loss = model.batch_inference(
                         src=src,
                         start_tokens=trg[:, 0], 
                         max_len=self.max_len,
@@ -296,7 +297,7 @@ class Trainer:
                 # upadate logs and save model
                 self.training_logger.update_phase_end(phase, printing=True)
                 if is_training_now:
-                    self.training_logger.save_model(self.wdir, self.model)
+                    self.training_logger.save_model(self.wdir, model)
                     self.training_logger.save_logs(self.save_dir)
 
                     high_fitness = self.training_logger.model_manager.best_higher
